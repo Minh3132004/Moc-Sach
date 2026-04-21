@@ -1,0 +1,185 @@
+package com.example.backend.service.order;
+
+import com.example.backend.dao.order.OrderRepository;
+import com.example.backend.dao.order.DeliveryRepository;
+import com.example.backend.dao.coupon.CouponRepository;
+import com.example.backend.dao.user.UserRepository;
+import com.example.backend.dao.order.OrderDetailRepository;
+import com.example.backend.dao.payment.PaymentRepository;
+import com.example.backend.dao.cart.CartItemRepository;
+import com.example.backend.dao.book.BookRepository;
+import com.example.backend.dto.response.api.ApiResponse;
+import com.example.backend.dto.response.order.OrderResponse;
+import com.example.backend.entity.coupon.Coupon;
+import com.example.backend.entity.order.Delivery;
+import com.example.backend.entity.payment.Payment;
+import com.example.backend.entity.book.Book;
+import com.example.backend.entity.order.OrderDetail;
+import com.example.backend.entity.user.User;
+import com.example.backend.entity.order.Order;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+public class OrderServiceImp implements OrderService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private DeliveryRepository deliveryRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private BookRepository bookRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
+
+    @Autowired
+    private CouponRepository couponRepository;
+
+    @Override
+    public ResponseEntity<?> save(OrderResponse orderDTO) {
+        try {
+            User user = null;
+            Payment payment = null;
+            Coupon coupon = null;
+
+            // Tìm kiếm người dùng
+            if (userRepository.findById(orderDTO.getIdUser()).isPresent()) {
+                user = userRepository.findById(orderDTO.getIdUser()).get();
+            }
+
+            // Tìm kiếm hình thức thanh toán
+            if (paymentRepository.findById(orderDTO.getIdPayment()).isPresent()) {
+                payment = paymentRepository.findById(orderDTO.getIdPayment()).get();
+            }
+
+            // Tìm kiếm hình thức giao hàng
+            Delivery delivery = deliveryRepository.findById(1).get();
+
+            // Tìm kiếm mã giảm giá nếu có truyền lên
+            if (orderDTO.getCouponCode() != null && !orderDTO.getCouponCode().trim().isEmpty()) {
+                coupon = couponRepository.findByCode(orderDTO.getCouponCode().trim()).orElse(null);
+                if (coupon == null) {
+                    return ResponseEntity.badRequest().body(ApiResponse.error("Mã giảm giá không tồn tại"));
+                }
+
+                LocalDate today = LocalDate.now();
+                if (!coupon.isActive() || coupon.getExpiryDate().before(Date.valueOf(today))) {
+                    return ResponseEntity.badRequest().body(ApiResponse.error("Mã giảm giá không hợp lệ hoặc đã hết hạn"));
+                }
+            }
+
+            // Xử lý danh sách order items (idBook, quantity)
+            if (orderDTO.getOrderItems() != null && !orderDTO.getOrderItems().isEmpty()) {
+                // Kiểm tra tất cả sách có đủ số lượng trước khi tạo đơn hàng
+                for (OrderResponse.OrderItemRequest item : orderDTO.getOrderItems()) {
+                    int idBook = item.getIdBook();
+                    int quantity = item.getQuantity();
+                    Book book = bookRepository.findById(idBook).get();
+                    
+                    if (book.getQuantity() < quantity) {
+                        return ResponseEntity.badRequest().body(ApiResponse.error("Số lượng sách không đủ"));
+                    }
+                }
+                
+                // Tạo đơn hàng
+                if (user != null && payment != null) {
+                    Order order = new Order();
+                    LocalDate localDate = LocalDate.now();
+                    order.setDateCreated(Date.valueOf(localDate));
+                    order.setDeliveryAddress(orderDTO.getDeliveryAddress());
+                    order.setPhoneNumber(orderDTO.getPhoneNumber());
+                    order.setFullName(orderDTO.getFullName());
+                    order.setTotalPriceProduct(orderDTO.getTotalPriceProduct());
+                    order.setFeeDelivery(delivery.getFeeDelivery());
+                    order.setFeePayment(payment.getFeePayment());
+                    order.setTotalPrice(orderDTO.getTotalPrice());
+                    order.setNote(orderDTO.getNote());
+                    order.setUser(user);
+                    order.setPayment(payment);
+                    order.setDelivery(delivery);
+                    order.setCoupon(coupon);
+                    order.setStatus("Đang xử lý");
+                    order.setPaymentStatus(orderDTO.getPaymentStatus());
+
+                    // Lưu đơn hàng
+                    Order savedOrder = orderRepository.save(order);
+
+                    // Xử lý từng item: cập nhật số lượng sách và tạo OrderDetail
+                    for (OrderResponse.OrderItemRequest item : orderDTO.getOrderItems()) {
+                        int idBook = item.getIdBook();
+                        int quantity = item.getQuantity();
+                        Book book = bookRepository.findById(idBook).get();
+
+                        // Cập nhật số lượng sách
+                        book.setQuantity(book.getQuantity() - quantity);
+                        book.setSoldQuantity(book.getSoldQuantity() + quantity);
+                        bookRepository.save(book);
+
+                        // Tạo OrderDetail
+                        OrderDetail orderDetail = new OrderDetail();
+                        orderDetail.setQuantity(quantity);
+                        orderDetail.setPrice(book.getSellPrice());
+                        orderDetail.setBook(book);
+                        orderDetail.setOrder(savedOrder);
+                        orderDetailRepository.save(orderDetail);
+                    }
+
+                    cartItemRepository.deleteByUser_IdUser(orderDTO.getIdUser());
+                    return ResponseEntity.ok(ApiResponse.success("Đơn hàng đã được tạo thành công!", null));
+                } else {
+                    return ResponseEntity.badRequest().body(ApiResponse.error("Thông tin người dùng hoặc thanh toán không hợp lệ"));
+                }
+            } else {
+                return ResponseEntity.badRequest().body(ApiResponse.error("Danh sách sách không được trống"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(ApiResponse.error("Xảy ra lỗi khi tạo đơn hàng"));
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> update(OrderResponse orderDTO) {
+        try {
+            Order order = orderRepository.findById(orderDTO.getIdOrder()).get();
+
+            // Nếu chuyển sang trạng thái hủy → hoàn kho
+           if ("Bị huỷ".equalsIgnoreCase(orderDTO.getStatus()) && 
+               !"Bị huỷ".equalsIgnoreCase(order.getStatus())) {
+               List<OrderDetail> orderDetails = orderDetailRepository.findOrderDetailsByOrder(order);
+               for (OrderDetail detail : orderDetails) {
+                   Book book = detail.getBook();
+                   if (book != null) {
+                       book.setQuantity(book.getQuantity() + detail.getQuantity());
+                       book.setSoldQuantity(Math.max(0, book.getSoldQuantity() - detail.getQuantity()));
+                       bookRepository.save(book);
+                   }
+               }
+           }
+
+            order.setStatus(orderDTO.getStatus());
+            orderRepository.save(order);
+            return ResponseEntity.ok(ApiResponse.success("Đơn hàng đã được cập nhật thành công", null));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(ApiResponse.error("Cập nhật đơn hàng thất bại"));
+        }
+    }
+}
