@@ -38,7 +38,7 @@ public class CartServiceImp implements CartService {
             cartItemRepository.save(cartItem);
             return ResponseEntity.ok(ApiResponse.success("Đã thêm sản phẩm vào giỏ hàng", null));
         }
-        return ResponseEntity.badRequest().body(ApiResponse.error("Đã xảy ra lỗi"));
+        return ResponseEntity.badRequest().body(ApiResponse.error("Thêm sản phẩm vào giỏ hàng thất bại"));
     }
 
     // Cập nhật số lượng sản phẩm trong giỏ hàng
