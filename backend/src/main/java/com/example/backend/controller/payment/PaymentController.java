@@ -2,8 +2,11 @@ package com.example.backend.controller.payment;
 
 import com.example.backend.dto.request.payment.PaymentRequest;
 import com.example.backend.dto.response.api.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import vn.payos.PayOS;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
 import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
@@ -20,41 +23,36 @@ public class PaymentController {
     // Tạo link thanh toán
     @PostMapping("/create-payment-link")
     public ApiResponse<CreatePaymentLinkResponse> createPaymentLink(
-            @RequestBody PaymentRequest requestBody) {
+            @Valid @RequestBody PaymentRequest requestBody) {
         try {
-            final String productName = requestBody.getProductName(); // Tên sản phẩm
-            final String description = requestBody.getDescription(); // Mô tả
-            final String returnUrl = requestBody.getReturnUrl(); // URL khi thanh toán thành công
-            final String cancelUrl = requestBody.getCancelUrl(); // URL khi hủy thanh toán
-            final long amount = requestBody.getAmount(); // Số tiền
+            final String productName = requestBody.getProductName();
+            final String description = requestBody.getDescription();
+            final String returnUrl = requestBody.getReturnUrl();
+            final String cancelUrl = requestBody.getCancelUrl();
+            final long amount = requestBody.getAmount();
 
-            // Tạo mã đơn hàng
             long orderCode = System.currentTimeMillis() / 1000;
 
-            // Tạo item
             PaymentLinkItem item = PaymentLinkItem.builder()
                     .name(productName)
                     .quantity(1)
                     .price(amount)
                     .build();
 
-            // Tạo request
             CreatePaymentLinkRequest paymentData = CreatePaymentLinkRequest.builder()
-                    .orderCode(orderCode) // Mã đơn hàng
-                    .description(description) // Mô tả
-                    .amount(amount) // Số tiền
-                    .item(item) // Item
-                    .returnUrl(returnUrl) // URL khi thanh toán thành công
-                    .cancelUrl(cancelUrl) // URL khi hủy thanh toán
+                    .orderCode(orderCode)
+                    .description(description)
+                    .amount(amount)
+                    .item(item)
+                    .returnUrl(returnUrl)
+                    .cancelUrl(cancelUrl)
                     .build();
 
-            // Tạo link thanh toán
             CreatePaymentLinkResponse data = payOS.paymentRequests().create(paymentData);
             return ApiResponse.success(data);
-
         } catch (Exception e) {
-            e.printStackTrace();
-            return ApiResponse.error("Tạo link thanh toán thất bại: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                    "Không thể kết nối cổng thanh toán, vui lòng thử lại sau");
         }
     }
 

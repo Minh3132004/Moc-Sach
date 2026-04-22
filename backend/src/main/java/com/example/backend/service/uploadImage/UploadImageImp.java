@@ -2,10 +2,12 @@ package com.example.backend.service.uploadImage;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.backend.exception.InternalServerException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Service
@@ -14,26 +16,23 @@ public class UploadImageImp implements UploadImageService {
     private final Cloudinary cloudinary;
     @Override
     public String uploadImage(MultipartFile multipartFile, String name) {
-        String url = "";
-        try{
-             url = cloudinary.uploader()
+        try {
+            return cloudinary.uploader()
                     .upload(multipartFile.getBytes(), Map.of("public_id", name))
                     .get("url")
                     .toString();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new InternalServerException("Tải ảnh lên thất bại", e);
         }
-        return url;
     }
 
     @Override
     public void deleteImage(String imageUrl) {
-        try{
+        try {
             String publicId = getPublicIdImg(imageUrl);
             cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "image"));
-        } catch (Exception e) {
-            System.out.println("Lỗi khi xoá ảnh");
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new InternalServerException("Xóa ảnh thất bại", e);
         }
     }
 

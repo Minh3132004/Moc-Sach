@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.regex.PatternSyntaxException;
 
 
 public class Base64ToMultipartFileConverter {
@@ -80,8 +81,7 @@ public class Base64ToMultipartFileConverter {
             };
 
             return multipartFile;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }

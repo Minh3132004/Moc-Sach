@@ -1,7 +1,10 @@
 package com.example.backend.service.email;
 
+import com.example.backend.exception.InternalServerException;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -18,21 +21,16 @@ public class EmailServiceImpl implements EmailService{
         //MimeMailMessage  : có đính kèm file
         //SimpleMailMessage : nội dung thông thường 
 
-        try{
-            //Tạo một message rỗng 
+        try {
             MimeMessage mimeMessage = emailSender.createMimeMessage();
-            //Tạo helper để thiết lập thông tin
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-            // Thiết lập thông tin
             helper.setFrom(from);
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(message, true); // Bật chế độ HTML
-
-            // Gửi email
+            helper.setText(message, true);
             emailSender.send(mimeMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (MessagingException | MailException e) {
+            throw new InternalServerException("Gửi email thất bại", e);
         }
 
 

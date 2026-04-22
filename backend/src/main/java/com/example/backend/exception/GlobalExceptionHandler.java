@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -142,6 +143,12 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, 409, ex.getMessage(), null);
     }
 
+    // Bắt lỗi ràng buộc dữ liệu từ database như unique/foreign key.
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        return buildResponse(HttpStatus.CONFLICT, 409, "Dữ liệu bị xung đột hoặc vi phạm ràng buộc", null);
+    }
+
     // Bắt lỗi không tìm thấy tài nguyên do project tự định nghĩa.
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleNotFound(NotFoundException ex) {
@@ -158,6 +165,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ApiResponse<Object>> handleForbidden(ForbiddenException ex) {
         return buildResponse(HttpStatus.FORBIDDEN, 403, ex.getMessage(), null);
+    }
+
+    // Bắt lỗi hệ thống phát sinh từ service/hạ tầng của project.
+    @ExceptionHandler(InternalServerException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInternalServerException(InternalServerException ex) {
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, 500, ex.getMessage(), null);
     }
 
     // Bắt toàn bộ lỗi chưa được xử lý ở các handler khác và ghi log để debug.

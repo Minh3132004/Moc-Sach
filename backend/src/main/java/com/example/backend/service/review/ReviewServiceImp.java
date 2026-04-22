@@ -10,6 +10,8 @@ import com.example.backend.entity.book.Book;
 import com.example.backend.entity.book.Image;
 import com.example.backend.entity.order.OrderDetail;
 import com.example.backend.entity.review.Review;
+import com.example.backend.exception.BadRequestException;
+import com.example.backend.exception.NotFoundException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -73,32 +75,38 @@ public class ReviewServiceImp implements ReviewService {
     @Override
     @Transactional
     public ResponseEntity<?> submitReview(JsonNode jsonNode) {
+        long idOrderDetail;
+        float ratingPoint;
         try {
-            long idOrderDetail = Long.parseLong(formatStringByJson(String.valueOf(jsonNode.get("idOrderDetail"))));
-            float ratingPoint = Float.parseFloat(formatStringByJson(String.valueOf(jsonNode.get("ratingPoint"))));
-            String content = formatStringByJson(String.valueOf(jsonNode.get("content")));
-
-            OrderDetail od = orderDetailRepository.findById(idOrderDetail)
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
-
-            Review review = new Review();
-            review.setContent(content);
-            review.setRatingPoint(ratingPoint);
-            review.setTimestamp(Timestamp.from(Instant.now()));
-            review.setBook(od.getBook());
-            review.setUser(od.getOrder().getUser());
-            review.setOrderDetail(od);
-            reviewRepository.save(review);
-
-            od.setReview(true);
-            orderDetailRepository.save(od);
-
-            updateBookRating(od.getBook());
-            return ResponseEntity.ok(ApiResponse.success("Đánh giá thành công!", null));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(ApiResponse.error("Lỗi: " + e.getMessage()));
+            idOrderDetail = Long.parseLong(formatStringByJson(String.valueOf(jsonNode.get("idOrderDetail"))));
+            ratingPoint = Float.parseFloat(formatStringByJson(String.valueOf(jsonNode.get("ratingPoint"))));
+        } catch (NumberFormatException | NullPointerException e) {
+            throw new BadRequestException("Dữ liệu đánh giá không hợp lệ");
         }
+
+        if (ratingPoint < 1 || ratingPoint > 5) {
+            throw new BadRequestException("Điểm đánh giá phải từ 1 đến 5");
+        }
+
+        String content = formatStringByJson(String.valueOf(jsonNode.get("content")));
+
+        OrderDetail od = orderDetailRepository.findById(idOrderDetail)
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy đơn hàng"));
+
+        Review review = new Review();
+        review.setContent(content);
+        review.setRatingPoint(ratingPoint);
+        review.setTimestamp(Timestamp.from(Instant.now()));
+        review.setBook(od.getBook());
+        review.setUser(od.getOrder().getUser());
+        review.setOrderDetail(od);
+        reviewRepository.save(review);
+
+        od.setReview(true);
+        orderDetailRepository.save(od);
+
+        updateBookRating(od.getBook());
+        return ResponseEntity.ok(ApiResponse.success("Đánh giá thành công!", null));
     }
 
     private void updateBookRating(Book book) {

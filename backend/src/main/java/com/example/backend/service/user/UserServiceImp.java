@@ -3,9 +3,13 @@ package com.example.backend.service.user;
 import com.example.backend.dao.user.RoleRepository;
 import com.example.backend.dao.user.UserRepository;
 import com.example.backend.dto.request.user.ChangeAvatarRequest;
+import com.example.backend.dto.request.user.UserCreateRequest;
 import com.example.backend.dto.request.user.ChangePasswordRequest;
 import com.example.backend.dto.request.user.UpdateProfileRequest;
 import com.example.backend.dto.response.api.ApiResponse;
+import com.example.backend.exception.BadRequestException;
+import com.example.backend.exception.ConflictException;
+import com.example.backend.exception.NotFoundException;
 import com.example.backend.entity.user.Role;
 import com.example.backend.entity.user.User;
 import com.example.backend.dto.response.auth.JwtResponse;
@@ -50,19 +54,26 @@ public class UserServiceImp implements UserService {
     @Autowired
     private UploadImageService uploadImageService;
 
-    public ResponseEntity<?> register(User user) {
+    public ResponseEntity<?> register(UserCreateRequest userDTO) {
         // Kiểm tra username đã tồn tại chưa
-        if (userRepository.existsByUsername(user.getUsername())) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Username đã tồn tại."));
+        if (userRepository.existsByUsername(userDTO.getUsername())) {
+            throw new ConflictException("Username đã tồn tại.");
         }
 
         // Kiểm tra email
-        if (userRepository.existsByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Email đã tồn tại."));
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new ConflictException("Email đã tồn tại.");
         }
 
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+
         // Mã hoá mật khẩu
-        String encodePassword = passwordEncoder.encode(user.getPassword());
+        String encodePassword = passwordEncoder.encode(userDTO.getPassword());
         // Set mật khẩu đã mã hoá
         user.setPassword(encodePassword);
 
@@ -89,19 +100,26 @@ public class UserServiceImp implements UserService {
     }
 
     // 👇 Thêm user bởi Admin
-    public ResponseEntity<?> addUserByAdmin(User user) {
+    public ResponseEntity<?> addUserByAdmin(UserCreateRequest userDTO) {
         // Kiểm tra username đã tồn tại chưa
-        if (userRepository.existsByUsername(user.getUsername())) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Username đã tồn tại."));
+        if (userRepository.existsByUsername(userDTO.getUsername())) {
+            throw new ConflictException("Username đã tồn tại.");
         }
 
         // Kiểm tra email
-        if (userRepository.existsByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Email đã tồn tại."));
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new ConflictException("Email đã tồn tại.");
         }
 
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+
         // Mã hoá mật khẩu
-        String encodePassword = passwordEncoder.encode(user.getPassword());
+        String encodePassword = passwordEncoder.encode(userDTO.getPassword());
         user.setPassword(encodePassword);
 
         // Set ảnh đại diện
@@ -129,17 +147,15 @@ public class UserServiceImp implements UserService {
     // 👇 Cập nhật user bởi Admin
     public ResponseEntity<?> updateUserByAdmin(int userId, User updateData) {
         // Tìm user theo ID
-        User existingUser = userRepository.findById(userId).orElse(null);
-        if (existingUser == null) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Người dùng không tồn tại."));
-        }
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại."));
 
         // Cập nhật các field
         if (updateData.getEmail() != null && !updateData.getEmail().isEmpty()) {
             // Kiểm tra email không bị trùng (ngoại trừ user hiện tại)
             if (!existingUser.getEmail().equals(updateData.getEmail()) && 
                 userRepository.existsByEmail(updateData.getEmail())) {
-                return ResponseEntity.badRequest().body(ApiResponse.error("Email đã tồn tại."));
+                throw new ConflictException("Email đã tồn tại.");
             }
             existingUser.setEmail(updateData.getEmail());
         }
@@ -191,12 +207,7 @@ public class UserServiceImp implements UserService {
         String subject = "Kích hoạt tài khoản";
         String message = "Cảm ơn bạn đã là thành viên của chúng tôi. Vui lòng kích hoạt tài khoản!: <br/> Mã kích hoạt: <strong>"+ activationCode +"<strong/>";
         message += "<br/> Click vào đây để <a href="+ url +">kích hoạt</a>";
-        try {
-            //Gửi email tới người dùng
-            emailService.sendMessage("de180352vubinhminh@gmail.com", email, subject, message);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        emailService.sendMessage("de180352vubinhminh@gmail.com", email, subject, message);
     }
 
 
@@ -205,10 +216,10 @@ public class UserServiceImp implements UserService {
         // Tìm kiếm user theo email
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Người dùng không tồn tại!"));
+            throw new NotFoundException("Người dùng không tồn tại!");
         }
         if (user.isEnabled()) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Tài khoản đã được kích hoạt"));
+            throw new ConflictException("Tài khoản đã được kích hoạt");
         }
         // Kiểm tra mã kích hoạt
         if (user.getActivationCode().equals(activationCode)) {
@@ -216,63 +227,54 @@ public class UserServiceImp implements UserService {
             user.setEnabled(true);
             userRepository.save(user);
         } else {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Mã kích hoạt không chính xác!"));
+            throw new BadRequestException("Mã kích hoạt không chính xác!");
         }
         return ResponseEntity.ok(ApiResponse.success("Kích hoạt thành công", null));
     }
 
     //Chức năng đăng nhập cho người dùng 
     public ResponseEntity<?> authenticate(LoginRequest loginRequest){
-        // Xử lý xác thực người dùng
-        try{
-            // authentication sẽ giúp ta lấy dữ liệu từ db để kiểm tra
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-            );
-            // Nếu xác thực thành công
-            if (authentication.isAuthenticated()) {
-                // Kiểm tra người dùng có được kích hoạt hay không
-                User user = userRepository.findByUsername(loginRequest.getUsername());
-                if (user == null) {
-                    return ResponseEntity.badRequest().body(ApiResponse.error("Người dùng không tồn tại!"));
-                }
-                if (!user.isEnabled()) {
-                    return ResponseEntity.badRequest().body(ApiResponse.error("Tài khoản đã bị khóa hoặc chưa được kích hoạt!"));
-                }
-                // Tạo token cho người dùng
-                final String jwtToken = jwtService.generateToken(loginRequest.getUsername());
-                return ResponseEntity.ok(ApiResponse.success("Đăng nhập thành công", new JwtResponse(jwtToken)));
-            }
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         } catch (AuthenticationException e) {
-            return ResponseEntity.badRequest().body(ApiResponse.error("Tên đăng nhập hoặc mật khẩu không đúng!"));
+            throw new BadRequestException("Tên đăng nhập hoặc mật khẩu không đúng!");
         }
-        return ResponseEntity.badRequest().body(ApiResponse.error("Xác thực không thành công"));
+
+        if (!authentication.isAuthenticated()) {
+            throw new BadRequestException("Xác thực không thành công");
+        }
+
+        User user = userRepository.findByUsername(loginRequest.getUsername());
+        if (user == null) {
+            throw new NotFoundException("Người dùng không tồn tại!");
+        }
+        if (!user.isEnabled()) {
+            throw new BadRequestException("Tài khoản đã bị khóa hoặc chưa được kích hoạt!");
+        }
+
+        final String jwtToken = jwtService.generateToken(loginRequest.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("Đăng nhập thành công", new JwtResponse(jwtToken)));
     }
 
 
     //Quên mật khẩu 
     public ResponseEntity<?> forgotPassword(String email) {
-        try{
-            //Tìm kiếm người dùng theo email
-            User user = userRepository.findByEmail(email);
-
-            System.out.println(user);
-            if (user == null) {
-                return ResponseEntity.status(404).body(ApiResponse.error("Không tìm thấy người dùng"));
-            }
-
-            // Đổi mật khẩu cho user (dùng mật khẩu random)
-            String passwordTemp = generateTemporaryPassword();
-            user.setPassword(passwordEncoder.encode(passwordTemp));
-            userRepository.save(user);
-
-            // Gửi email để nhận mật khẩu
-            sendEmailForgotPassword(user.getEmail(), passwordTemp);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(ApiResponse.error("Xử lý quên mật khẩu thất bại"));
+        //Tìm kiếm người dùng theo email
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new NotFoundException("Không tìm thấy người dùng");
         }
+
+        // Đổi mật khẩu cho user (dùng mật khẩu random)
+        String passwordTemp = generateTemporaryPassword();
+        user.setPassword(passwordEncoder.encode(passwordTemp));
+        userRepository.save(user);
+
+        // Gửi email để nhận mật khẩu
+        sendEmailForgotPassword(user.getEmail(), passwordTemp);
+
         return ResponseEntity.ok(ApiResponse.success("Đã gửi mật khẩu tạm thời qua email", null));
     }
 
@@ -281,12 +283,7 @@ public class UserServiceImp implements UserService {
         String subject = "Reset mật khẩu";
         String message = "Mật khẩu tạm thời của bạn là: <strong>" + password + "</strong>";
         message += "<br/> <span>Vui lòng đăng nhập và đổi lại mật khẩu của bạn</span>";
-        try {
-            //Gửi email tới người dùng
-            emailService.sendMessage("de180352vubinhminh@gmail.com", email, subject, message);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        emailService.sendMessage("de180352vubinhminh@gmail.com", email, subject, message);
     }
 
     
@@ -296,134 +293,107 @@ public class UserServiceImp implements UserService {
 
     // Cập nhật thông tin cá nhân
     public ResponseEntity<?> updateProfile(UpdateProfileRequest updateProfileDTO) {
-        try {
-            // Tìm user theo id
-            User user = userRepository.findById(updateProfileDTO.getIdUser()).orElse(null);
-            
-            if (user == null) {
-                return ResponseEntity.badRequest().body(ApiResponse.error("Người dùng không tồn tại!"));
-            }
+        // Tìm user theo id
+        User user = userRepository.findById(updateProfileDTO.getIdUser())
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
 
-            // Cập nhật thông tin
-            if (updateProfileDTO.getFirstName() != null && !updateProfileDTO.getFirstName().trim().isEmpty()) {
-                user.setFirstName(updateProfileDTO.getFirstName());
-            }
-
-            if (updateProfileDTO.getLastName() != null && !updateProfileDTO.getLastName().trim().isEmpty()) {
-                user.setLastName(updateProfileDTO.getLastName());
-            }
-            
-            if (updateProfileDTO.getPhoneNumber() != null && !updateProfileDTO.getPhoneNumber().trim().isEmpty()) {
-                user.setPhoneNumber(updateProfileDTO.getPhoneNumber());
-            }
-            
-            if (updateProfileDTO.getDeliveryAddress() != null) {
-                user.setDeliveryAddress(updateProfileDTO.getDeliveryAddress());
-            }
-            if (updateProfileDTO.getDateOfBirth() != null) {
-                user.setDateOfBirth(new java.sql.Date(updateProfileDTO.getDateOfBirth().getTime()));
-            }
-            if (updateProfileDTO.getGender() != null && !updateProfileDTO.getGender().trim().isEmpty()) {
-                user.setGender(updateProfileDTO.getGender().charAt(0)); // Lấy ký tự đầu tiên của gender
-            }
-
-            // Lưu thay đổi vào database
-            userRepository.save(user);
-
-            return ResponseEntity.ok(ApiResponse.success("Cập nhật thông tin thành công", null));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(ApiResponse.error("Cập nhật thông tin thất bại"));
+        // Cập nhật thông tin
+        if (updateProfileDTO.getFirstName() != null && !updateProfileDTO.getFirstName().trim().isEmpty()) {
+            user.setFirstName(updateProfileDTO.getFirstName().trim());
         }
+
+        if (updateProfileDTO.getLastName() != null && !updateProfileDTO.getLastName().trim().isEmpty()) {
+            user.setLastName(updateProfileDTO.getLastName().trim());
+        }
+
+        if (updateProfileDTO.getPhoneNumber() != null && !updateProfileDTO.getPhoneNumber().trim().isEmpty()) {
+            user.setPhoneNumber(updateProfileDTO.getPhoneNumber().trim());
+        }
+
+        if (updateProfileDTO.getDeliveryAddress() != null) {
+            user.setDeliveryAddress(updateProfileDTO.getDeliveryAddress().trim());
+        }
+        if (updateProfileDTO.getDateOfBirth() != null) {
+            user.setDateOfBirth(new java.sql.Date(updateProfileDTO.getDateOfBirth().getTime()));
+        }
+        if (updateProfileDTO.getGender() != null && !updateProfileDTO.getGender().trim().isEmpty()) {
+            user.setGender(Character.toUpperCase(updateProfileDTO.getGender().trim().charAt(0)));
+        }
+
+        // Lưu thay đổi vào database
+        userRepository.save(user);
+
+        return ResponseEntity.ok(ApiResponse.success("Cập nhật thông tin thành công", null));
     }
 
     // Đổi mật khẩu
     public ResponseEntity<?> changePassword(ChangePasswordRequest changePasswordDTO) {
-        try {
-            // Tìm user theo id
-            User user = userRepository.findById(changePasswordDTO.getIdUser()).orElse(null);
-            
-            if (user == null) {
-                return ResponseEntity.badRequest().body(ApiResponse.error("Người dùng không tồn tại!"));
-            }
+        // Tìm user theo id
+        User user = userRepository.findById(changePasswordDTO.getIdUser())
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
 
-            // Kiểm tra mật khẩu hiện tại
-            if (!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), user.getPassword())) {
-                return ResponseEntity.badRequest().body(ApiResponse.error("Mật khẩu hiện tại không đúng!"));
-            }
-
-            // Kiểm tra mật khẩu mới và xác nhận mật khẩu
-            if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
-                return ResponseEntity.badRequest().body(ApiResponse.error("Mật khẩu mới và xác nhận mật khẩu không khớp!"));
-            }
-
-            // Kiểm tra mật khẩu mới không được trùng với mật khẩu cũ
-            if (passwordEncoder.matches(changePasswordDTO.getNewPassword(), user.getPassword())) {
-                return ResponseEntity.badRequest().body(ApiResponse.error("Mật khẩu mới phải khác mật khẩu hiện tại!"));
-            }
-
-            // Mã hóa mật khẩu mới
-            String encodedNewPassword = passwordEncoder.encode(changePasswordDTO.getNewPassword());
-            user.setPassword(encodedNewPassword);
-            
-            // Lưu thay đổi vào database
-            userRepository.save(user);
-
-            return ResponseEntity.ok(ApiResponse.success("Đổi mật khẩu thành công!", null));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(ApiResponse.error("Đổi mật khẩu thất bại"));
+        // Kiểm tra mật khẩu hiện tại
+        if (!passwordEncoder.matches(changePasswordDTO.getCurrentPassword(), user.getPassword())) {
+            throw new BadRequestException("Mật khẩu hiện tại không đúng!");
         }
+
+        // Kiểm tra mật khẩu mới và xác nhận mật khẩu
+        if (!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getConfirmPassword())) {
+            throw new BadRequestException("Mật khẩu mới và xác nhận mật khẩu không khớp!");
+        }
+
+        // Kiểm tra mật khẩu mới không được trùng với mật khẩu cũ
+        if (passwordEncoder.matches(changePasswordDTO.getNewPassword(), user.getPassword())) {
+            throw new BadRequestException("Mật khẩu mới phải khác mật khẩu hiện tại!");
+        }
+
+        // Mã hóa mật khẩu mới
+        String encodedNewPassword = passwordEncoder.encode(changePasswordDTO.getNewPassword());
+        user.setPassword(encodedNewPassword);
+
+        // Lưu thay đổi vào database
+        userRepository.save(user);
+
+        return ResponseEntity.ok(ApiResponse.success("Đổi mật khẩu thành công!", null));
     }
 
     // Đổi avatar
     @Override
     @Transactional
     public ResponseEntity<?> changeAvatar(ChangeAvatarRequest changeAvatarDTO) {
-        try {
-            // Tìm user theo id
-            User user = userRepository.findById(changeAvatarDTO.getIdUser()).orElse(null);
-            
-            if (user == null) {
-                return ResponseEntity.badRequest().body(ApiResponse.error("Người dùng không tồn tại!"));
-            }
+        // Tìm user theo id
+        User user = userRepository.findById(changeAvatarDTO.getIdUser())
+                .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
 
-            String dataAvatar = changeAvatarDTO.getAvatar();
-
-            // Xóa ảnh cũ trong Cloudinary nếu có
-            if (user.getAvatar() != null && !user.getAvatar().isEmpty() && user.getAvatar().length() > 0) {
-                try {
-                    uploadImageService.deleteImage(user.getAvatar());
-                } catch (Exception e) {
-                    System.out.println("Không thể xóa ảnh cũ: " + e.getMessage());
-                    // Tiếp tục upload ảnh mới dù không xóa được ảnh cũ
-                }
-            }
-
-            // Kiểm tra và upload ảnh mới nếu là Base64
-            if (dataAvatar != null && !dataAvatar.isEmpty() && Base64ToMultipartFileConverter.isBase64(dataAvatar)) {
-                MultipartFile avatarFile = Base64ToMultipartFileConverter.convert(dataAvatar);
-                if (avatarFile != null) {
-                    String avatarUrl = uploadImageService.uploadImage(avatarFile, "User_" + changeAvatarDTO.getIdUser());
-                    if (avatarUrl != null && !avatarUrl.isEmpty()) {
-                        user.setAvatar(avatarUrl);
-                        userRepository.save(user);
-                        
-                        // Tạo token mới và trả về
-                        final String jwtToken = jwtService.generateToken(user.getUsername());
-                        return ResponseEntity.ok(ApiResponse.success("Đổi avatar thành công", new JwtResponse(jwtToken)));
-                    } else {
-                        return ResponseEntity.badRequest().body(ApiResponse.error("Upload ảnh thất bại!"));
-                    }
-                } else {
-                    return ResponseEntity.badRequest().body(ApiResponse.error("Không thể convert ảnh!"));
-                }
-            } else {
-                return ResponseEntity.badRequest().body(ApiResponse.error("Dữ liệu ảnh không hợp lệ!"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(ApiResponse.error("Đổi avatar thất bại: " + e.getMessage()));
+        String dataAvatar = changeAvatarDTO.getAvatar();
+        if (!Base64ToMultipartFileConverter.isBase64(dataAvatar)) {
+            throw new BadRequestException("Dữ liệu ảnh không hợp lệ!");
         }
+
+        // Xóa ảnh cũ trong Cloudinary nếu có
+        if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+            try {
+                uploadImageService.deleteImage(user.getAvatar());
+            } catch (RuntimeException ignored) {
+                // Tiếp tục upload ảnh mới dù không xóa được ảnh cũ
+            }
+        }
+
+        MultipartFile avatarFile = Base64ToMultipartFileConverter.convert(dataAvatar);
+        if (avatarFile == null) {
+            throw new BadRequestException("Không thể convert ảnh!");
+        }
+
+        String avatarUrl = uploadImageService.uploadImage(avatarFile, "User_" + changeAvatarDTO.getIdUser());
+        if (avatarUrl == null || avatarUrl.isEmpty()) {
+            throw new BadRequestException("Upload ảnh thất bại!");
+        }
+
+        user.setAvatar(avatarUrl);
+        userRepository.save(user);
+
+        // Tạo token mới và trả về
+        final String jwtToken = jwtService.generateToken(user.getUsername());
+        return ResponseEntity.ok(ApiResponse.success("Đổi avatar thành công", new JwtResponse(jwtToken)));
     }
 }

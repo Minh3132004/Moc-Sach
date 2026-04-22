@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FavoriteBookResponse {
-    private int idUser;
-    private int idBook;
+
+    private Integer idUser;
+
+    private Integer idBook;
 }
