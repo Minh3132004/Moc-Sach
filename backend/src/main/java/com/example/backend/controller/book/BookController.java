@@ -6,7 +6,6 @@ import com.example.backend.service.book.BookService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,18 +22,18 @@ public class BookController {
         return bookService.getAllBooks();
     }
 
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> createBook(@Valid @ModelAttribute BookCreateRequest bookDTO) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createBook(@Valid @RequestBody BookCreateRequest bookDTO) {
         return bookService.createBook(bookDTO);
     }
 
-    @PutMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateBook(@Valid @ModelAttribute BookUpdateRequest bookDTO) {
+    @PutMapping("/update")
+    public ResponseEntity<?> updateBook(@Valid @RequestBody BookUpdateRequest bookDTO) {
         return bookService.updateBook(bookDTO);
     }
 
-    @PutMapping(value = "/update-with-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateBookWithImages(@Valid @ModelAttribute BookUpdateRequest bookDTO) {
+    @PutMapping("/update-with-images")
+    public ResponseEntity<?> updateBookWithImages(@Valid @RequestBody BookUpdateRequest bookDTO) {
         return bookService.updateBookWithImages(bookDTO);
     }
 

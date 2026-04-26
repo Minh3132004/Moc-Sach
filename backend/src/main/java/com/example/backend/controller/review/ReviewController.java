@@ -1,15 +1,13 @@
 package com.example.backend.controller.review;
 
-import com.example.backend.dto.response.book.BookToReviewResponse;
+import com.example.backend.dto.request.review.SubmitReviewRequest;
 import com.example.backend.service.review.ReviewService;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/review")
@@ -19,18 +17,16 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    // API: Lấy danh sách chờ đánh giá
-    // [SỬA LỖI] Đổi ResponseEntityList thành ResponseEntity<List<...>>
+    // Lấy danh sách chờ đánh giá
     @GetMapping("/books-to-review/{userId}")
-    public ResponseEntity<List<BookToReviewResponse>> getBooksToReview(
+    public ResponseEntity<?> getBooksToReview(
             @PathVariable @Positive(message = "userId phải lớn hơn 0") int userId) {
-        return ResponseEntity.ok(reviewService.getBooksToReview(userId));
+        return reviewService.getBooksToReview(userId);
     }
 
-    // API: Gửi đánh giá mới
+    // Gửi đánh giá mới
     @PostMapping("/submit-new")
-    public ResponseEntity<?> submitReview(@RequestBody JsonNode jsonNode) {
-        return reviewService.submitReview(jsonNode);
+    public ResponseEntity<?> submitReview(@Valid @RequestBody SubmitReviewRequest request) {
+        return reviewService.submitReview(request);
     }
 }
-

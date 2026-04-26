@@ -16,7 +16,7 @@ public class ChangeAvatarRequest {
     @Positive(message = "idUser phải lớn hơn 0")
     private Integer idUser;
 
-    @NotBlank(message = "Dữ liệu ảnh không được để trống")
-    private String avatar; // Base64 string của ảnh
+    @NotBlank(message = "Link ảnh không được để trống")
+    private String avatarUrl; // URL ảnh từ Cloudinary
 }
 

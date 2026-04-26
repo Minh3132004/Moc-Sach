@@ -1,9 +1,9 @@
 package com.example.backend.service.uploadImage;
 
-import org.springframework.web.multipart.MultipartFile;
+import com.example.backend.dto.response.cloudinary.CloudinarySignatureResponse;
 
 public interface UploadImageService {
-    String uploadImage(MultipartFile multipartFile, String name);
     void deleteImage(String imgUrl);
+    CloudinarySignatureResponse generateSignature(String folder);
 }
 

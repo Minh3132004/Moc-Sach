@@ -7,8 +7,6 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 @Data
@@ -35,5 +33,5 @@ public class BookCreateRequest {
     @NotEmpty(message = "Vui lòng chọn ít nhất một thể loại")
     private List<Integer> genreIds;
 
-    private List<MultipartFile> images;
+    private List<String> imageUrls;
 }

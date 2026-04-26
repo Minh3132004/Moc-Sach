@@ -10,13 +10,7 @@ import java.util.Map;
 
 @Configuration
 public class CloudinaryConfig {
-//    private final String CLOUD_NAME = "dhqu0tjno";
-//    private final String API_KEY = "963355478491177";
-//    private final String API_SECRET = "rQ4_pMlsNeUHtnONHdmnXUC-ES4";
-//    private final String CLOUD_NAME = "dczuxnaht";
-//    private final String API_KEY = "263646573218465";
-//    private final String API_SECRET = "e-qtUx93JBpbnhjfc_CtlfSJemg";
-    
+
     @Value("${cloud_name}")
     private String CLOUD_NAME;
     @Value("${api_key}")
@@ -24,7 +18,7 @@ public class CloudinaryConfig {
     @Value("${api_secret}")
     private String API_SECRET;
 
-    //    Config cloudinary (Nơi để chứa ảnh)
+    // Config cloudinary (Nơi để chứa ảnh)
     @Bean
     public Cloudinary cloudinary() {
         Map<String, String> config = new HashMap<>();
@@ -34,5 +28,3 @@ public class CloudinaryConfig {
         return new Cloudinary(config);
     }
 }
-
-

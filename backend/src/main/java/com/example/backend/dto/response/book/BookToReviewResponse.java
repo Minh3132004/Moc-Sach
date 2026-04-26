@@ -3,6 +3,7 @@ package com.example.backend.dto.response.book;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.sql.Date;
 
 @Data
 @NoArgsConstructor
@@ -13,5 +14,5 @@ public class BookToReviewResponse {
     private String author;
     private String bookImage;
     private int orderId;
-    private String dateCreated;
+    private Date dateCreated;
 }

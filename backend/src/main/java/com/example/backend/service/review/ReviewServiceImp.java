@@ -4,6 +4,7 @@ import com.example.backend.dao.book.BookRepository;
 import com.example.backend.dao.order.OrderDetailRepository;
 import com.example.backend.dao.review.ReviewRepository;
 import com.example.backend.dao.user.UserRepository;
+import com.example.backend.dto.request.review.SubmitReviewRequest;
 import com.example.backend.dto.response.api.ApiResponse;
 import com.example.backend.dto.response.book.BookToReviewResponse;
 import com.example.backend.entity.book.Book;
@@ -11,9 +12,11 @@ import com.example.backend.entity.book.Image;
 import com.example.backend.entity.order.OrderDetail;
 import com.example.backend.entity.review.Review;
 import com.example.backend.exception.BadRequestException;
+import com.example.backend.exception.ConflictException;
+import com.example.backend.exception.InternalServerException;
 import com.example.backend.exception.NotFoundException;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,80 +38,115 @@ public class ReviewServiceImp implements ReviewService {
     @Autowired
     private BookRepository bookRepository;
 
+    // Lấy tất cả các sách chưa đánh giá từ người dùng
     @Override
-    public List<BookToReviewResponse> getBooksToReview(int userId) {
-        List<OrderDetail> listEntities = orderDetailRepository.findUnreviewedBooksByUser(userId);
-        List<BookToReviewResponse> listDTOs = new ArrayList<>();
-
-        for (OrderDetail od : listEntities) {
-            String imgUrl = "https://via.placeholder.com/150";
-            if (od.getBook() != null && od.getBook().getListImages() != null && !od.getBook().getListImages().isEmpty()) {
-                imgUrl = od.getBook().getListImages().stream()
-                        .filter(img -> img != null && img.isThumbnail())
-                        .findFirst()
-                        .map(Image::getUrlImage)
-                        .orElse(od.getBook().getListImages().get(0) != null ? od.getBook().getListImages().get(0).getUrlImage() : imgUrl);
+    public ResponseEntity<?> getBooksToReview(int userId) {
+        try {
+            if (!userRepository.existsById(userId)) {
+                throw new NotFoundException("Không tìm thấy người dùng");
             }
 
-            // Lấy thông tin an toàn (tránh NullPointerException)
-            String bookName = (od.getBook() != null) ? od.getBook().getNameBook() : "Sách Lỗi";
-            String author = (od.getBook() != null) ? od.getBook().getAuthor() : "Lỗi";
-            int orderId = (od.getOrder() != null) ? od.getOrder().getIdOrder() : 0;
+            List<OrderDetail> listEntities = orderDetailRepository.findUnreviewedBooksByUser(userId);
+            List<BookToReviewResponse> listDTOs = new ArrayList<>();
 
-            // [SỬA LỖI 1] Chuyển Date thành String (có kiểm tra null)
-            String dateString = (od.getOrder() != null && od.getOrder().getDateCreated() != null)
-                    ? od.getOrder().getDateCreated().toString()
-                    : "N/A";
+            for (OrderDetail od : listEntities) {
+                if (od == null) {
+                    continue;
+                }
 
-            listDTOs.add(new BookToReviewResponse(
-                    od.getIdOrderDetail(),
-                    bookName,
-                    author,
-                    imgUrl,
-                    orderId,
-                    dateString // Đã là String, khớp với DTO
-            ));
+                Book book = od.getBook();
+                if (book == null) {
+                    throw new NotFoundException("Không tìm thấy sách");
+                }
+
+                if (od.getOrder() == null) {
+                    throw new NotFoundException("Không tìm thấy đơn hàng");
+                }
+
+                String imgUrl = "https://via.placeholder.com/150";
+                if (book.getListImages() != null && !book.getListImages().isEmpty()) {
+                    imgUrl = book.getListImages().stream()
+                            .filter(img -> img != null && img.isThumbnail())
+                            .findFirst()
+                            .map(Image::getUrlImage)
+                            .orElse(book.getListImages().get(0) != null ? book.getListImages().get(0).getUrlImage() : imgUrl);
+                }
+
+                listDTOs.add(new BookToReviewResponse(
+                        od.getIdOrderDetail(),
+                        book.getNameBook(),
+                        book.getAuthor(),
+                        imgUrl,
+                        od.getOrder().getIdOrder(),
+                        od.getOrder().getDateCreated()
+                ));
+            }
+
+            return ResponseEntity.ok(ApiResponse.success("Lấy danh sách chờ đánh giá thành công", listDTOs));
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy danh sách chờ đánh giá thất bại", e);
         }
-        return listDTOs;
     }
 
+    // Gửi review đánh giá sách
     @Override
     @Transactional
-    public ResponseEntity<?> submitReview(JsonNode jsonNode) {
-        long idOrderDetail;
-        float ratingPoint;
+    public ResponseEntity<?> submitReview(SubmitReviewRequest request) {
         try {
-            idOrderDetail = Long.parseLong(formatStringByJson(String.valueOf(jsonNode.get("idOrderDetail"))));
-            ratingPoint = Float.parseFloat(formatStringByJson(String.valueOf(jsonNode.get("ratingPoint"))));
-        } catch (NumberFormatException | NullPointerException e) {
-            throw new BadRequestException("Dữ liệu đánh giá không hợp lệ");
+            if (request == null) {
+                throw new BadRequestException("Dữ liệu đánh giá không hợp lệ");
+            }
+
+            long idOrderDetail = request.getIdOrderDetail();
+            OrderDetail od = orderDetailRepository.findById(idOrderDetail)
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy chi tiết đơn hàng"));
+
+            int ratingPoint = request.getRatingPoint();
+            String content = request.getContent();
+            if (content == null || content.trim().isEmpty()) {
+                content = "";
+            } else {
+                content = content.trim();
+            }
+
+            if (od.isReview()) {
+                throw new ConflictException("Đơn hàng này đã được đánh giá");
+            }
+
+            if (od.getOrder() == null || od.getOrder().getUser() == null) {
+                throw new NotFoundException("Không tìm thấy đơn hàng hoặc người dùng");
+            }
+            if (od.getBook() == null) {
+                throw new NotFoundException("Không tìm thấy sách");
+            }
+
+            Review review = new Review();
+            review.setContent(content);
+            review.setRatingPoint(ratingPoint);
+            review.setTimestamp(Timestamp.from(Instant.now()));
+            review.setBook(od.getBook());
+            review.setUser(od.getOrder().getUser());
+            review.setOrderDetail(od);
+
+            reviewRepository.save(review);
+
+            od.setReview(true);
+            orderDetailRepository.save(od);
+
+            updateBookRating(od.getBook());
+            return ResponseEntity.ok(ApiResponse.success("Đánh giá thành công!", null));
+        } catch (BadRequestException | NotFoundException | ConflictException e) {
+            throw e;
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException("Gửi đánh giá thất bại do dữ liệu xung đột");
+        } catch (Exception e) {
+            throw new InternalServerException("Gửi đánh giá thất bại", e);
         }
-
-        if (ratingPoint < 1 || ratingPoint > 5) {
-            throw new BadRequestException("Điểm đánh giá phải từ 1 đến 5");
-        }
-
-        String content = formatStringByJson(String.valueOf(jsonNode.get("content")));
-
-        OrderDetail od = orderDetailRepository.findById(idOrderDetail)
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy đơn hàng"));
-
-        Review review = new Review();
-        review.setContent(content);
-        review.setRatingPoint(ratingPoint);
-        review.setTimestamp(Timestamp.from(Instant.now()));
-        review.setBook(od.getBook());
-        review.setUser(od.getOrder().getUser());
-        review.setOrderDetail(od);
-        reviewRepository.save(review);
-
-        od.setReview(true);
-        orderDetailRepository.save(od);
-
-        updateBookRating(od.getBook());
-        return ResponseEntity.ok(ApiResponse.success("Đánh giá thành công!", null));
     }
 
+    // Update rating của sách sau khi đánh giá xong
     private void updateBookRating(Book book) {
         if (book == null) return;
         List<Review> reviews = reviewRepository.findByBook(book);
@@ -122,10 +160,5 @@ public class ReviewServiceImp implements ReviewService {
             book.setAvgRating(sum / reviews.size());
         }
         bookRepository.save(book);
-    }
-
-    // [SỬA LỖI 2] Thêm lại hàm formatStringByJson
-    private String formatStringByJson(String json) {
-        return json.replaceAll("\"", "");
     }
 }

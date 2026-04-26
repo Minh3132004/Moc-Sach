@@ -20,7 +20,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +74,7 @@ public class BookServiceImp implements BookService {
             book.setListGenres(genres);
 
             Book savedBook = saveBookOrThrow(book, "Tạo sách");
-            saveBookImages(savedBook, bookDTO.getImages(), 0);
+            saveBookImages(savedBook, bookDTO.getImageUrls(), 0);
 
             return ResponseEntity.ok(ApiResponse.success("Tạo sách thành công", mapToBookResponse(savedBook)));
         } catch (BadRequestException | NotFoundException | ConflictException e) {
@@ -148,7 +147,7 @@ public class BookServiceImp implements BookService {
             }
 
             int keepCount = bookDTO.getKeepImageIds() != null ? bookDTO.getKeepImageIds().size() : 0;
-            saveBookImages(existingBook, bookDTO.getNewImages(), keepCount);
+            saveBookImages(existingBook, bookDTO.getNewImageUrls(), keepCount);
 
             return ResponseEntity.ok(ApiResponse.success("Cập nhật sách thành công", mapToBookResponse(existingBook)));
         } catch (BadRequestException | NotFoundException | ConflictException e) {
@@ -189,29 +188,26 @@ public class BookServiceImp implements BookService {
     }
 
     // Lưu ảnh sách
-    private void saveBookImages(Book book, List<MultipartFile> images, int existingImageCount) {
-        if (images == null || images.isEmpty()) {
+    private void saveBookImages(Book book, List<String> imageUrls, int existingImageCount) {
+        if (imageUrls == null || imageUrls.isEmpty()) {
             return;
         }
 
-        for (int i = 0; i < images.size(); i++) {
-            MultipartFile file = images.get(i);
-            if (file.isEmpty()) {
+        for (int i = 0; i < imageUrls.size(); i++) {
+            String imageUrl = imageUrls.get(i);
+            if (imageUrl == null || imageUrl.isEmpty()) {
                 continue;
             }
 
-            String imageName = "Book_" + book.getIdBook() + "_" + System.currentTimeMillis() + "_" + i;
-            String imageUrl = uploadImageService.uploadImage(file, imageName);
-
             Image image = new Image();
             image.setBook(book);
-            image.setNameImage(file.getOriginalFilename());
+            image.setNameImage("Book_" + book.getIdBook() + "_" + i);
             image.setUrlImage(imageUrl);
             image.setThumbnail(existingImageCount == 0 && i == 0);
             try {
                 imageRepository.save(image);
             } catch (DataIntegrityViolationException e) {
-                throw new ConflictException("Lưu ảnh sách thất bại do dữ liệu liên quan");
+                throw new ConflictException("Lưu ảnh sách thất bại do dữ liệu xung đột");
             } catch (Exception e) {
                 throw new InternalServerException("Lưu ảnh sách thất bại", e);
             }
