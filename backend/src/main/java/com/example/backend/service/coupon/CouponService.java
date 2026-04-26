@@ -12,6 +12,6 @@ public interface CouponService {
 
     ResponseEntity<?> updateActiveCoupon(int id, CouponRequest couponDTO);
 
-    ResponseEntity<?> updateUsedCoupon(String code);
+    ResponseEntity<?> updateUsedCoupon(String code, int idUser);
 
 }

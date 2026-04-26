@@ -45,7 +45,8 @@ public class CouponController {
 
     // Sử dụng mã giảm giá
     @PutMapping("/update/used")
-    public ResponseEntity<?> updateUsedCoupon(@RequestParam @NotBlank(message = "Mã giảm giá không được để trống") String code) {
-        return couponService.updateUsedCoupon(code);
+    public ResponseEntity<?> updateUsedCoupon(@RequestParam @NotBlank(message = "Mã giảm giá không được để trống") String code,
+            @RequestParam @Positive(message = "idUser phải lớn hơn 0") int idUser) {
+        return couponService.updateUsedCoupon(code, idUser);
     }
 }

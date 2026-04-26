@@ -42,97 +42,120 @@ public class BookServiceImp implements BookService {
     // Lấy tất cả sách
     @Override
     public ResponseEntity<?> getAllBooks() {
-        List<Book> bookList = bookRepository.findAll();
-        List<BookResponse> bookDTOList = new ArrayList<>();
-        for (Book book : bookList) {
-            bookDTOList.add(new BookResponse(book.getIdBook(), book.getNameBook()));
+        try {
+            List<Book> bookList = bookRepository.findAll();
+            List<BookResponse> bookDTOList = new ArrayList<>();
+            for (Book book : bookList) {
+                bookDTOList.add(mapToBookResponse(book));
+            }
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy danh sách sách thành công", bookDTOList));
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy danh sách sách thất bại", e);
         }
-        return ResponseEntity.ok().body(bookDTOList);
     }
 
     // Tạo sách
     @Override
     @Transactional
     public ResponseEntity<?> createBook(BookCreateRequest bookDTO) {
-        validateCreateRequest(bookDTO);
-        List<Genre> genres = resolveGenres(bookDTO.getGenreIds());
+        try {
+            validateCreateRequest(bookDTO);
+            List<Genre> genres = resolveGenres(bookDTO.getGenreIds());
 
-        Book book = new Book();
-        book.setNameBook(bookDTO.getNameBook());
-        book.setAuthor(bookDTO.getAuthor());
-        book.setDescription(bookDTO.getDescription());
-        book.setListPrice(bookDTO.getListPrice());
-        book.setQuantity(bookDTO.getQuantity());
-        book.setDiscountPercent(bookDTO.getDiscountPercent());
-        book.setAvgRating(0.0);
-        book.setSoldQuantity(0);
-        book.setSellPrice(bookDTO.getListPrice() - (bookDTO.getListPrice() * bookDTO.getDiscountPercent() / 100));
-        book.setListGenres(genres);
+            Book book = new Book();
+            book.setNameBook(bookDTO.getNameBook());
+            book.setAuthor(bookDTO.getAuthor());
+            book.setDescription(bookDTO.getDescription());
+            book.setListPrice(bookDTO.getListPrice());
+            book.setQuantity(bookDTO.getQuantity());
+            book.setDiscountPercent(bookDTO.getDiscountPercent());
+            book.setAvgRating(0.0);
+            book.setSoldQuantity(0);
+            book.setSellPrice(bookDTO.getListPrice() - (bookDTO.getListPrice() * bookDTO.getDiscountPercent() / 100));
+            book.setListGenres(genres);
 
-        Book savedBook = saveBookOrThrow(book, "Tạo sách");
-        saveBookImages(savedBook, bookDTO.getImages(), 0);
+            Book savedBook = saveBookOrThrow(book, "Tạo sách");
+            saveBookImages(savedBook, bookDTO.getImages(), 0);
 
-        return ResponseEntity.ok(savedBook);
+            return ResponseEntity.ok(ApiResponse.success("Tạo sách thành công", mapToBookResponse(savedBook)));
+        } catch (BadRequestException | NotFoundException | ConflictException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Tạo sách thất bại", e);
+        }
     }
 
     // Cập nhật sách
     @Override
     public ResponseEntity<?> updateBook(BookUpdateRequest bookDTO) {
-        validateUpdateRequest(bookDTO);
-        Book existingBook = bookRepository.findById(bookDTO.getIdBook())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sách với ID: " + bookDTO.getIdBook()));
+        try {
+            validateUpdateRequest(bookDTO);
+            Book existingBook = bookRepository.findById(bookDTO.getIdBook())
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy sách với ID: " + bookDTO.getIdBook()));
 
-        existingBook.setNameBook(bookDTO.getNameBook());
-        existingBook.setAuthor(bookDTO.getAuthor());
-        existingBook.setDescription(bookDTO.getDescription());
-        existingBook.setListPrice(bookDTO.getListPrice());
-        existingBook.setQuantity(bookDTO.getQuantity());
-        existingBook.setDiscountPercent(bookDTO.getDiscountPercent());
-        existingBook.setSellPrice(bookDTO.getListPrice() - (bookDTO.getListPrice() * bookDTO.getDiscountPercent() / 100));
-        existingBook.setListGenres(resolveGenres(bookDTO.getGenreIds()));
+            existingBook.setNameBook(bookDTO.getNameBook());
+            existingBook.setAuthor(bookDTO.getAuthor());
+            existingBook.setDescription(bookDTO.getDescription());
+            existingBook.setListPrice(bookDTO.getListPrice());
+            existingBook.setQuantity(bookDTO.getQuantity());
+            existingBook.setDiscountPercent(bookDTO.getDiscountPercent());
+            existingBook.setSellPrice(bookDTO.getListPrice() - (bookDTO.getListPrice() * bookDTO.getDiscountPercent() / 100));
+            existingBook.setListGenres(resolveGenres(bookDTO.getGenreIds()));
 
-        return ResponseEntity.ok(saveBookOrThrow(existingBook, "Cập nhật sách"));
+            Book savedBook = saveBookOrThrow(existingBook, "Cập nhật sách");
+            return ResponseEntity.ok(ApiResponse.success("Cập nhật sách thành công", mapToBookResponse(savedBook)));
+        } catch (BadRequestException | NotFoundException | ConflictException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Cập nhật sách thất bại", e);
+        }
     }
 
     // Cập nhật sách với ảnh
     @Override
     @Transactional
     public ResponseEntity<?> updateBookWithImages(BookUpdateRequest bookDTO) {
-        validateUpdateRequest(bookDTO);
-        Book existingBook = bookRepository.findById(bookDTO.getIdBook())
-                .orElseThrow(() -> new NotFoundException("Không tìm thấy sách với ID: " + bookDTO.getIdBook()));
-
-        existingBook.setNameBook(bookDTO.getNameBook());
-        existingBook.setAuthor(bookDTO.getAuthor());
-        existingBook.setDescription(bookDTO.getDescription());
-        existingBook.setListPrice(bookDTO.getListPrice());
-        existingBook.setQuantity(bookDTO.getQuantity());
-        existingBook.setDiscountPercent(bookDTO.getDiscountPercent());
-        existingBook.setSellPrice(bookDTO.getListPrice() - (bookDTO.getListPrice() * bookDTO.getDiscountPercent() / 100));
-        existingBook.setListGenres(resolveGenres(bookDTO.getGenreIds()));
-        saveBookOrThrow(existingBook, "Cập nhật sách");
-
-        List<Image> currentImages = imageRepository.findByBook_IdBook(bookDTO.getIdBook());
         try {
-            if (bookDTO.getKeepImageIds() != null) {
-                for (Image image : currentImages) {
-                    if (!bookDTO.getKeepImageIds().contains(image.getIdImage())) {
-                        imageRepository.delete(image);
+            validateUpdateRequest(bookDTO);
+            Book existingBook = bookRepository.findById(bookDTO.getIdBook())
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy sách với ID: " + bookDTO.getIdBook()));
+
+            existingBook.setNameBook(bookDTO.getNameBook());
+            existingBook.setAuthor(bookDTO.getAuthor());
+            existingBook.setDescription(bookDTO.getDescription());
+            existingBook.setListPrice(bookDTO.getListPrice());
+            existingBook.setQuantity(bookDTO.getQuantity());
+            existingBook.setDiscountPercent(bookDTO.getDiscountPercent());
+            existingBook.setSellPrice(bookDTO.getListPrice() - (bookDTO.getListPrice() * bookDTO.getDiscountPercent() / 100));
+            existingBook.setListGenres(resolveGenres(bookDTO.getGenreIds()));
+            saveBookOrThrow(existingBook, "Cập nhật sách");
+
+            List<Image> currentImages = imageRepository.findByBook_IdBook(bookDTO.getIdBook());
+            try {
+                if (bookDTO.getKeepImageIds() != null) {
+                    for (Image image : currentImages) {
+                        if (!bookDTO.getKeepImageIds().contains(image.getIdImage())) {
+                            imageRepository.delete(image);
+                        }
                     }
+                } else {
+                    imageRepository.deleteAll(currentImages);
                 }
-            } else {
-                imageRepository.deleteAll(currentImages);
+            } catch (DataIntegrityViolationException e) {
+                throw new ConflictException("Cập nhật ảnh sách thất bại do dữ liệu liên quan");
+            } catch (Exception e) {
+                throw new InternalServerException("Cập nhật ảnh sách thất bại", e);
             }
-        } catch (DataIntegrityViolationException e) {
-            throw new ConflictException("Cập nhật ảnh sách thất bại do dữ liệu liên quan");
+
+            int keepCount = bookDTO.getKeepImageIds() != null ? bookDTO.getKeepImageIds().size() : 0;
+            saveBookImages(existingBook, bookDTO.getNewImages(), keepCount);
+
+            return ResponseEntity.ok(ApiResponse.success("Cập nhật sách thành công", mapToBookResponse(existingBook)));
+        } catch (BadRequestException | NotFoundException | ConflictException e) {
+            throw e;
         } catch (Exception e) {
-            throw new InternalServerException("Cập nhật ảnh sách thất bại", e);
+            throw new InternalServerException("Cập nhật sách thất bại", e);
         }
-
-        int keepCount = bookDTO.getKeepImageIds() != null ? bookDTO.getKeepImageIds().size() : 0;
-        saveBookImages(existingBook, bookDTO.getNewImages(), keepCount);
-
-        return ResponseEntity.ok(existingBook);
     }
 
     @Override
@@ -145,6 +168,8 @@ public class BookServiceImp implements BookService {
             return ResponseEntity.ok(ApiResponse.success("Xóa sách thành công!", null));
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("Không thể xóa sách này vì đã có dữ liệu liên quan.");
+        } catch (Exception e) {
+            throw new InternalServerException("Xóa sách thất bại", e);
         }
     }
 
@@ -213,5 +238,9 @@ public class BookServiceImp implements BookService {
         if (bookDTO == null) {
             throw new BadRequestException("Dữ liệu cập nhật sách không hợp lệ");
         }
+    }
+
+    private BookResponse mapToBookResponse(Book book) {
+        return new BookResponse(book.getIdBook(), book.getNameBook());
     }
 }

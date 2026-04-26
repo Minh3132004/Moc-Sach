@@ -5,6 +5,7 @@ import com.example.backend.entity.favorite.FavoriteBook;
 import com.example.backend.entity.review.Review;
 import com.example.backend.entity.cart.CartItem;
 import com.example.backend.entity.notification.Notification;
+import com.example.backend.entity.coupon.Coupon;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -70,5 +71,9 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Notification> listNotifications; // Danh sách thông báo của user
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "listUsersUsed", fetch = FetchType.LAZY)
+    private List<Coupon> listUsedCoupons; // Danh sách mã giảm giá user đã sử dụng
 
 }

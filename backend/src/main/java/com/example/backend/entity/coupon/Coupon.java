@@ -1,6 +1,7 @@
 package com.example.backend.entity.coupon;
 
 import com.example.backend.entity.order.Order;
+import com.example.backend.entity.user.User;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -40,4 +41,10 @@ public class Coupon {
     @JsonIgnore
     @OneToMany(mappedBy = "coupon")
     private List<Order> listOrders; // 1 mã giảm giá có thể áp dụng cho nhiều đơn hàng
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,
+            CascadeType.REFRESH})
+    @JoinTable(name = "user_coupon", joinColumns = @JoinColumn(name = "id_coupon"), inverseJoinColumns = @JoinColumn(name = "id_user"))
+    private List<User> listUsersUsed;
 }
