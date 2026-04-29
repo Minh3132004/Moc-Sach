@@ -1,4 +1,4 @@
-import bannerImg from "../../../assets/top-banner.png";
+import bannerImg from "../../../assets/top-banner/top-banner.png";
 import "./TopBanner.css";
 
 function TopBanner() {

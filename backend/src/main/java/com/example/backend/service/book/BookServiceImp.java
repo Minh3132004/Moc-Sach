@@ -8,6 +8,7 @@ import com.example.backend.dao.book.ImageRepository;
 import com.example.backend.dto.response.api.ApiResponse;
 import com.example.backend.dto.response.book.BookPageResponse;
 import com.example.backend.dto.response.book.BookResponse;
+import com.example.backend.dto.response.image.ImageResponse;
 import com.example.backend.entity.book.Book;
 import com.example.backend.entity.book.Genre;
 import com.example.backend.entity.book.Image;
@@ -89,6 +90,33 @@ public class BookServiceImp implements BookService {
         }
     }
 
+    // Lấy sách giảm giá nhiều nhất (tiêu chí phụ bán nhiều nhất)
+    @Override
+    public ResponseEntity<?> getFlashSaleBook(int page, int size) {
+        try {
+            Pageable pageable = PageRequest.of(
+                    page,
+                    size,
+                    Sort.by(Sort.Direction.DESC, "discountPercent").and(Sort.by(Sort.Direction.DESC, "soldQuantity"))
+            );
+            Page<Book> bookPage = bookRepository.findAll(pageable);
+            List<Book> bookList = bookPage.getContent();
+            List<BookResponse> bookDTOList = new ArrayList<>();
+            for (Book book : bookList) {
+                bookDTOList.add(mapToBookResponse(book));
+            }
+            BookPageResponse response = new BookPageResponse(
+                    bookDTOList,
+                    bookPage.getTotalElements(),
+                    bookPage.getTotalPages(),
+                    bookPage.getSize()
+            );
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy sách giảm giá nhiều nhất thành công", response));
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy sách giảm giá nhiều nhất thất bại", e);
+        }
+    }
+
     // Lấy sách mới
     @Override
     public ResponseEntity<?> getNewBooks(int size) {
@@ -113,6 +141,32 @@ public class BookServiceImp implements BookService {
             return ResponseEntity.ok().body(ApiResponse.success("Lấy sách mới thành công", response));
         } catch (Exception e) {
             throw new InternalServerException("Lấy sách mới thất bại", e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getAllImagesByBookId(int idBook) {
+        try {
+            bookRepository.findById(idBook)
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy sách với ID: " + idBook));
+
+            List<Image> images = imageRepository.findByBook_IdBook(idBook);
+
+            List<ImageResponse> imageResponses = new ArrayList<>();
+            for (Image image : images) {
+                imageResponses.add(new ImageResponse(
+                        image.getIdImage(),
+                        image.getNameImage(),
+                        image.isThumbnail(),
+                        image.getUrlImage()
+                ));
+            }
+
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy danh sách ảnh theo sách thành công", imageResponses));
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy danh sách ảnh theo sách thất bại", e);
         }
     }
 

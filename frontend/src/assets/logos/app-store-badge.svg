@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="54" viewBox="0 0 180 54">
+  <rect width="180" height="54" rx="8" fill="#1a1a1a"/>
+  <!-- Apple logo path (simplified) -->
+  <path d="M24 12 C21 12 19 14 16 14 C13 14 10 12 8 12 C5 12 2 15 2 19 C2 27 8 35 13 35 C15 35 17 33 20 33 C23 33 25 35 27 35 C32 35 38 27 38 19 C35 17 33 14 30 14 C27 14 26 12 24 12Z" fill="white" transform="translate(10,8) scale(0.75)"/>
+  <path d="M22 6 C24 4 25 2 24 0 C22 0 19 2 18 4 C16 6 15 8 17 9 C19 9 21 8 22 6Z" fill="white" transform="translate(10,8) scale(0.75)"/>
+  <!-- Text -->
+  <text x="52" y="21" font-family="Arial, sans-serif" font-size="10" fill="#aaaaaa" letter-spacing="0.3">Download on the</text>
+  <text x="52" y="40" font-family="Arial Black, sans-serif" font-size="19" font-weight="700" fill="white">App Store</text>
+</svg>

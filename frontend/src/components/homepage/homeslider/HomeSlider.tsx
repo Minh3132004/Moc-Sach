@@ -3,8 +3,8 @@ import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import './HomeSlider.css';
 
-import img1 from '../../assets/1.png';
-import img2 from '../../assets/2.jpg';
+import img1 from '../../../assets/home-slider/1.png';
+import img2 from '../../../assets/home-slider/2.jpg';
 
 const HomeSlider: React.FC = () => {
     const banners = [

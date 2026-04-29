@@ -30,6 +30,14 @@ public class BookController {
         return bookService.getHotBooks(size);
     }
 
+    @GetMapping("/flashsale")
+    public ResponseEntity<?> getFlashSaleBook(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        return bookService.getFlashSaleBook(page, size);
+    }
+
     @GetMapping("/new")
     public ResponseEntity<?> getNewBooks(@RequestParam(defaultValue = "4") int size) {
         return bookService.getNewBooks(size);
@@ -38,6 +46,13 @@ public class BookController {
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> getBookById(@PathVariable @Positive(message = "id phải lớn hơn 0") int id) {
         return bookService.getBookById(id);
+    }
+
+    @GetMapping("/{idBook}/listImages")
+    public ResponseEntity<?> getAllImagesByBookId(
+            @PathVariable @Positive(message = "idBook phải lớn hơn 0") int idBook
+    ) {
+        return bookService.getAllImagesByBookId(idBook);
     }
 
     @PostMapping("/create")

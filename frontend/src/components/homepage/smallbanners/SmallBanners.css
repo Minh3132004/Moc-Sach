@@ -1,0 +1,84 @@
+/* --- BANNER PHỤ (SMALL BANNERS) --- */
+.small-banners-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+}
+
+/* Trick: Banners trục dọc (cột bên cạnh slider) sẽ "mượn" 100% chiều cao của slider 
+   chứ không sử dụng ảnh của chính nó để ép grid cao lên gây ra khoảng trắng */
+.small-banners-container:not(.horizontal-layout) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0; 
+}
+
+/* Modifier class cho layout nằm ngang (4 banner dưới slider) */
+.small-banners-container.horizontal-layout {
+    position: relative;
+    flex-direction: row;
+    height: auto;
+    margin: 20px 0;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.small-banner-item {
+    width: 100%;
+    cursor: pointer;
+    line-height: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    flex: 1; /* Cả vertical và horizontal đều đẩy full 1/2 chiều không gian được cung cấp sẵn */
+}
+
+/* 
+   Vì khung slider mới là người quyết định chiều cao của toàn bộ dãy này 100% nên 
+   để small-banners bằng khít tuyệt đối với homeslider mà 1 trong 2 không bị khoảng trắng
+   thì ta bắt buộc phải crop ảnh của smallbanners bằng "cover", nhưng "contain" trên homeslider không bị crop
+*/
+.small-banners-container:not(.horizontal-layout) .small-banner-item img,
+.small-banners-container.horizontal-layout .small-banner-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Luôn lấp đầy khung, cho cả vertical và horizontal */
+    display: block;
+}
+
+/* Responsive: Trên màn hình lớn thì 2 banner có thể xếp hàng ngang nếu cần, 
+   nhưng theo style Fahasa thì thường nằm dọc bên cạnh Slider chính */
+@media (max-width: 992px) {
+    .small-banners-container {
+        flex-direction: row;
+    }
+    
+    .small-banner-item {
+        flex: 1;
+    }
+
+    .small-banners-container.horizontal-layout {
+        flex-wrap: wrap;
+    }
+
+    .small-banners-container.horizontal-layout .small-banner-item {
+        flex: 0 0 calc(50% - 7.5px);
+        margin-bottom: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .small-banners-container,
+    .small-banners-container.horizontal-layout {
+        flex-direction: column;
+    }
+    
+    .small-banners-container.horizontal-layout .small-banner-item {
+        flex: 0 0 100%;
+    }
+}

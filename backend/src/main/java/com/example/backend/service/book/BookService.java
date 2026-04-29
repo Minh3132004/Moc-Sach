@@ -9,7 +9,11 @@ public interface BookService {
 
     ResponseEntity<?> getHotBooks(int size);
 
+    ResponseEntity<?> getFlashSaleBook(int page, int size);
+
     ResponseEntity<?> getNewBooks(int size);
+
+    ResponseEntity<?> getAllImagesByBookId(int idBook);
 
     ResponseEntity<?> getBookById(int id);
 

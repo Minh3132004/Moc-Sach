@@ -2,6 +2,7 @@ export { useAllBooks } from "./useAllBooks";
 export { useBestSellerBooks } from "./useBestSellerBooks";
 export { useBookById } from "./useBookById";
 export { useBookCountByGenre } from "./useBookCountByGenre";
+export { useFlashSaleBooks } from "./useFlashSaleBooks";
 export { useHotBooks } from "./useHotBooks";
 export { useNewBooks } from "./useNewBooks";
 export { useSearchBooks } from "./useSearchBooks";

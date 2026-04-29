@@ -159,23 +159,51 @@
 }
 
 /* --- NÚT CHỌN QUỐC GIA / FLAG --- */
-.flag-chip {
-  width: 36px;
-  height: 28px;
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-  border-radius: 6px;
-  display: grid;
-  place-items: center;
-  color: #2a8190;
-  font-size: 14px;
+.language-switch {
+  height: 32px;
+  padding: 0 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #334155;
+  font-size: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-/* Hiệu ứng nhích lên cho nút chọn quốc gia */
-.flag-chip:hover {
+.language-flag {
+  width: 20px;
+  height: 16px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ef4444;
+  color: #fde047;
+  font-size: 11px;
+  line-height: 1;
+  flex: none;
+}
+
+.language-label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.language-caret {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+/* Hiệu ứng nhích lên cho nút chọn ngôn ngữ */
+.language-switch:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
   border-color: #cbd5e1 !important;

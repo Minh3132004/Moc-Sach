@@ -4,21 +4,19 @@ import api from "../../../lib/http";
 // Tao phuong thuc lay hinh anh
 async function getImage(endpoint: string): Promise<ImageModel[]> {
     //Goi phuong thuc request
-    const response = await api.get(endpoint)
+    const response: any = await api.get(endpoint);
 
-    //Lay ra json sach
-    const responseData = response._embedded.images;
+    const responseData = response?.data ?? [];
 
-    const data = responseData.map((image: ImageModel) =>
+    const data = responseData.map((image: any) =>
         new ImageModel(
             image.idImage,
             image.nameImage,
-            image.thumbnail,
+            image.isThumbnail,
             image.urlImage,
-            image.dataImage)
-    )
-
-    console.log(data);
+            image.dataImage
+        )
+    );
 
     return data;
 

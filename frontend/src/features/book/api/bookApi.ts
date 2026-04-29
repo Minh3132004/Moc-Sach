@@ -28,11 +28,12 @@ function mapToBookModel(book: any): BookModel {
 // Tạo phương thức lấy sách 
 async function getBook(endpoint: string): Promise<BookListResult> {
    const response: any = await api.get(endpoint);
+   const payload = response?.data ?? response;
 
-   const responseData = response?.bookList ?? [];
-   const totalPages: number = response?.totalPages ?? 0;
-   const totalElements: number = response?.totalElements ?? 0;
-   const size = response?.size ?? 0;
+   const responseData = payload?.bookList ?? [];
+   const totalPages: number = payload?.totalPages ?? 0;
+   const totalElements: number = payload?.totalElements ?? 0;
+   const size = payload?.size ?? 0;
 
    const bookList: BookModel[] = responseData.map(mapToBookModel);
 
@@ -51,6 +52,13 @@ export async function getHotBook(size = 4): Promise<BookListResult> {
 export async function getNewBook(size = 4): Promise<BookListResult> {
    // Xác định endpoint
    const endpoint: string = `/books/new?size=${size}`;
+
+   return getBook(endpoint);
+}
+
+// Tạo phương thức lấy sách Flash Sale
+export async function getFlashSaleBook(size = 5, page = 0): Promise<BookListResult> {
+   const endpoint: string = `/books/flashsale?size=${size}&page=${page}`;
 
    return getBook(endpoint);
 }
@@ -116,7 +124,8 @@ export async function searchBook(idGenre?: number, keySearch?: string, size?: nu
 export async function getBookById(idBook: number): Promise<BookModel> {
    const endpoint: string = `/books/detail/${idBook}`;
    const response: any = await api.get(endpoint);
-   return mapToBookModel(response);
+   const payload = response?.data ?? response;
+   return mapToBookModel(payload);
 }
 
 // Tạo phương thức lấy sách theo mã sách trong giỏ hàng

@@ -53,9 +53,13 @@ function Navbar() {
               </svg>
               <span>Tài khoản</span>
             </div>
-            <div className="flag-chip" aria-label="Quốc gia">
-              <span className="flag">★</span>
-            </div>
+            <button className="language-switch" type="button" aria-label="Chọn ngôn ngữ">
+              <span className="language-flag" aria-hidden="true">★</span>
+              <span className="language-label">VI</span>
+              <svg className="language-caret" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 9l6 6 6-6"></path>
+              </svg>
+            </button>
           </nav>
         </div>
       </header>
