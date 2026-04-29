@@ -1,5 +1,5 @@
 import React from "react";
-import "../utils/Pagination.css";
+import "./Pagination.css";
 
 interface PaginationInterface {
 	currentPage: number;  //Trang hiện tại

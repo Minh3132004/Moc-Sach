@@ -1,0 +1,26 @@
+/* --- BANNER ĐẦU TRANG --- */
+.top-banner {
+  position: relative;
+  width: 100%; /* Banner chiếm toàn bộ chiều ngang màn hình */
+  overflow: hidden;
+  background-color: #2a8190; /* Phù hợp với màu teal */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Ảnh banner */
+.top-banner-img {
+  display: block;
+  width: 100%;
+  height: 80px; /* Chiều cao hợp lý cho banner */
+  object-fit: cover; /* Hiển thị phủ kín toàn bộ khung (full width) */
+  object-position: center center;
+}
+
+@media (max-width: 720px) {
+  .top-banner-img {
+    height: 80px; /* Tăng chiều cao trên mobile tương ứng */
+  }
+}
+

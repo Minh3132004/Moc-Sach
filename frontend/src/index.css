@@ -1,20 +1,28 @@
+/* --- BIẾN TOÀN CỤC & CẤU HÌNH GIAO DIỆN --- */
 :root {
+  /* Màu sắc văn bản và nền */
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
+  
+  /* Màu chủ đạo (Accent) */
   --accent: #aa3bff;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
+  
+  /* Mạng xã hội và Đổ bóng */
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
+  /* Font chữ hệ thống */
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  /* Cấu hình Typography cơ bản */
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
@@ -30,6 +38,7 @@
   }
 }
 
+/* --- CHẾ ĐỘ TỐI (DARK MODE) --- */
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
@@ -50,22 +59,46 @@
   }
 }
 
+/* --- STYLE CARD HIỆN ĐẠI (MS BOOK CARD) --- */
+/* Lớp dùng chung cho các khối nội dung dạng thẻ có đổ bóng và bo góc */
+.ms-book-card {
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+/* Hiệu ứng bay lên khi di chuột vào card */
+.ms-book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: #e2e8f0;
+}
+
+/* --- CẤU TRÚC GIAO DIỆN CHÍNH (#ROOT) --- */
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
+  margin: 0;
+  text-align: left;
   min-height: 100svh;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Giúp đẩy Footer xuống cuối trang */
   box-sizing: border-box;
 }
 
+/* --- RESET CƠ BẢN --- */
 body {
   margin: 0;
+  background: #fff;
 }
 
+html {
+  background: #fff;
+}
+
+/* --- TIÊU ĐỀ & VĂN BẢN --- */
 h1,
 h2 {
   font-family: var(--heading);
@@ -82,6 +115,7 @@ h1 {
     margin: 20px 0;
   }
 }
+
 h2 {
   font-size: 24px;
   line-height: 118%;
@@ -91,6 +125,7 @@ h2 {
     font-size: 20px;
   }
 }
+
 p {
   margin: 0;
 }

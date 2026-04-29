@@ -1,0 +1,11 @@
+/* --- STYLE CẤP ĐỘ ỨNG DỤNG (APP LEVEL) --- */
+
+/* 
+   Thiết lập cấu trúc Flexbox cho toàn bộ ứng dụng.
+   Đảm bảo nội dung chính có thể dãn ra và Footer luôn bị đẩy xuống cuối trang.
+*/
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Quan trọng: Đảm bảo app luôn cao bằng toàn bộ màn hình */
+}

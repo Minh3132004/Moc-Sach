@@ -1,7 +1,6 @@
 //Sử dụng thư viện jwt-decode để giúp decode token 
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload } from "./JwtPayload";
-import { useNavigate } from "react-router-dom";
 
 
 //Kiểm tra token có tồn tại không 
@@ -72,8 +71,7 @@ export function getRoleByToken() {
    }
 }
 
-//Đăng xuất cho user
-export function logout(navigate : any) {
-   navigate("/login");
+//Đăng xuất cho user (Chỉ xóa token)
+export function logout() {
    localStorage.removeItem('token');
 }

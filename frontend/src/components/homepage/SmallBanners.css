@@ -1,0 +1,45 @@
+/* --- BANNER PHỤ (SMALL BANNERS) --- */
+.small-banners-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Thay đổi gap để phù hợp với padding/margin chung */
+    height: 100%; /* Kéo dãn chiều cao bằng với cột slider bên cạnh */
+}
+
+.small-banner-item {
+    width: 100%;
+    cursor: pointer;
+    line-height: 0; /* Xóa khoảng trống thừa dưới ảnh */
+    flex: 1; /* Chia đều chiều cao cho 2 banner */
+    border-radius: 12px; /* Bo góc giống slider chính */
+    overflow: hidden;
+    position: relative; /* Container tương đối để chứa ảnh tuyệt đối */
+}
+
+.small-banner-item img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Bắt buộc ảnh lấy chiều cao 100% của container */
+    object-fit: cover; /* Tự động cắt ảnh để khớp khung */
+    display: block;
+}
+
+/* Responsive: Trên màn hình lớn thì 2 banner có thể xếp hàng ngang nếu cần, 
+   nhưng theo style Fahasa thì thường nằm dọc bên cạnh Slider chính */
+@media (max-width: 992px) {
+    .small-banners-container {
+        flex-direction: row;
+    }
+    
+    .small-banner-item {
+        flex: 1;
+    }
+}
+
+@media (max-width: 576px) {
+    .small-banners-container {
+        flex-direction: column;
+    }
+}

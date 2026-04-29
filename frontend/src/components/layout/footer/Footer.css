@@ -1,0 +1,308 @@
+/* --- BIẾN MÀU SẮC CHO FOOTER --- */
+:root {
+  --footer-bg: #f4f4f4;
+  --footer-accent: #b1b6ba;
+  --footer-text: #2b2f33;
+  --footer-muted: #6c757d;
+  --footer-border: #e3e6e8;
+  --footer-pill: #ffffff;
+  --footer-brand: #2a8190;
+}
+
+/* --- KHUNG CHÍNH CỦA FOOTER --- */
+.site-footer {
+  background: var(--footer-bg);
+  color: var(--footer-text);
+  margin-top: 32px;
+  text-align: left;
+}
+
+/* --- DẢI ĐĂNG KÝ BẢN TIN (NEWSLETTER) --- */
+.site-footer .newsletter {
+  background: #ffffff;
+  color: #ffffff;
+  padding: 18px 24px;
+}
+
+/* Khối xám bo góc chứa tiêu đề và form newsletter */
+.newsletter-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--footer-accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+/* Tiêu đề và icon của dải newsletter */
+.newsletter-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* Khối chứa input và button đăng ký */
+.newsletter-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* Ô nhập Email */
+.newsletter-input {
+  width: min(520px, 100%);
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff !important;
+  color: #1e293b !important;
+  outline: none;
+  font-size: 14px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Màu sắc cho văn bản gợi ý trong input */
+.newsletter-input::placeholder {
+  color: #94a3b8;
+}
+
+/* Hiệu ứng khi nhấn vào ô nhập email */
+.newsletter-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Nút Đăng ký màu xanh Teal */
+.newsletter-btn {
+  background: #2a8190;
+  border: none;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.newsletter-btn:hover {
+  background: #1e616d;
+}
+
+/* --- PHẦN NỘI DUNG CHÍNH (FOOTER BODY) --- */
+.footer-body {
+  background: #ffffff; /* Trở về nền trắng tinh */
+  padding: 20px 24px 32px;
+}
+
+/* Khối card trắng chứa toàn bộ thông tin footer có đổ bóng */
+.footer-body-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px 24px;
+  border: 1px solid #f1f5f9; /* Viền siêu mảnh để tạo khung */
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08); /* Bóng đổ mượt mà */
+}
+
+/* Khối bên trái: Logo và mô tả */
+.brand-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 22px;
+  border-right: 1px solid var(--footer-border);
+}
+
+.brand-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #2a8190;
+}
+
+/* Văn bản mô tả thương hiệu */
+.brand-text {
+  color: var(--footer-muted);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Khối chứa thông tin bên phải footer */
+.footer-right {
+  padding-left: 6px;
+  min-width: 0;
+}
+
+/* Hàng chứa các icon mạng xã hội */
+.social-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Từng nút mạng xã hội hình tròn */
+.social-pill {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #f0f2f3;
+  color: #444;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Hàng chứa các nút tải ứng dụng */
+.store-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Nút App Store / Google Play */
+.store-badge {
+  background: #1f1f1f;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Các cột liên kết bên phải */
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+/* Tiêu đề của các cột liên kết */
+.footer-links h5 {
+  font-size: 15px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+/* Các đường dẫn liên kết */
+.footer-links a {
+  color: var(--footer-text);
+  text-decoration: none;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Danh sách liên kết không có dấu đầu dòng */
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+/* Khối hiển thị thông tin liên hệ (Địa chỉ, Email, SĐT) */
+.contact-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--footer-muted);
+}
+
+/* Lưới hiển thị danh sách đối tác */
+.partner-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* Khối hiển thị các đối tác (Partner) dạng thẻ nhỏ */
+.partner-pill {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 10px !important;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hiệu ứng bay lên khi hover vào thẻ đối tác */
+.partner-pill:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Dòng bản quyền cuối cùng */
+.footer-bottom {
+  border-top: 1px solid var(--footer-border);
+  background: #ffffff;
+  border-radius: 0 0 10px 10px;
+  text-align: center;
+  padding: 14px 12px 20px;
+  color: var(--footer-muted);
+  font-size: 12px;
+}
+
+/* --- XỬ LÝ GIAO DIỆN TRÊN ĐIỆN THOẠI (RESPONSIVE) --- */
+/* Điều chỉnh layout footer khi màn hình nhỏ hơn 980px */
+@media (max-width: 980px) {
+  /* Chuyển card footer sang 1 cột duy nhất */
+  .footer-body-inner {
+    grid-template-columns: 1fr;
+  }
+
+  /* Chuyển khối thương hiệu thành hàng dọc, bỏ viền phải */
+  .brand-block {
+    border-right: none;
+    padding-right: 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--footer-border);
+  }
+
+  /* Chia 2 cột cho các liên kết footer */
+  .footer-links {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Thông tin liên hệ xếp hàng dọc */
+  .contact-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* Chia 2 cột cho danh sách đối tác */
+  .partner-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Chuyển dải newsletter sang hàng dọc */
+  .newsletter-inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Form newsletter dãn toàn chiều ngang */
+  .newsletter-form {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .newsletter-input {
+    width: 100%;
+  }
+}

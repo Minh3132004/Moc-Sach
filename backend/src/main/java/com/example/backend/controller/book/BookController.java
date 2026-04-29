@@ -18,8 +18,26 @@ public class BookController {
     private BookService bookService;
 
     @GetMapping("/get-all")
-    public ResponseEntity<?> getAllBooks() {
-        return bookService.getAllBooks();
+    public ResponseEntity<?> getAllBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return bookService.getAllBooks(page, size);
+    }
+
+    @GetMapping("/hot")
+    public ResponseEntity<?> getHotBooks(@RequestParam(defaultValue = "4") int size) {
+        return bookService.getHotBooks(size);
+    }
+
+    @GetMapping("/new")
+    public ResponseEntity<?> getNewBooks(@RequestParam(defaultValue = "4") int size) {
+        return bookService.getNewBooks(size);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?> getBookById(@PathVariable @Positive(message = "id phải lớn hơn 0") int id) {
+        return bookService.getBookById(id);
     }
 
     @PostMapping("/create")

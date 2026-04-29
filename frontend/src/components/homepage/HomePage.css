@@ -1,0 +1,51 @@
+/* --- TRANG CHỦ (HOMEPAGE) --- */
+.homepage-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
+/* Khu vực phía trên gồm Slider chính và Banner phụ */
+.homepage-top-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Chia tỉ lệ 2/3 cho Slider và 1/3 cho Banner phụ */
+    gap: 16px;
+    margin-bottom: 30px;
+    align-items: stretch;
+}
+
+.main-slider-column, .small-banners-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.small-banners-column > * {
+    flex: 1;
+}
+
+@media (max-width: 992px) {
+    .homepage-top-section {
+        grid-template-columns: 1fr; /* Chuyển thành 1 cột trên tablet/mobile */
+    }
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2a8190;
+    margin-bottom: 20px;
+    padding-left: 10px;
+    border-left: 4px solid #2a8190;
+    text-transform: uppercase;
+}
+
+.homepage-content {
+    margin-top: 40px;
+}
+
+.placeholder-books {
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px dashed #e2e8f0;
+}

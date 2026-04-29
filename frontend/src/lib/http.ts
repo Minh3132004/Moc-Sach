@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { AxiosError, AxiosResponse } from 'axios';
-import ApiError from './ApiError';
+import ApiError from "./ApiError";
 
 const IS_DEV = import.meta.env.DEV;
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';

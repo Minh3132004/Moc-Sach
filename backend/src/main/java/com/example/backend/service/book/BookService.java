@@ -5,7 +5,13 @@ import com.example.backend.dto.request.book.BookUpdateRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface BookService {
-    ResponseEntity<?> getAllBooks();
+    ResponseEntity<?> getAllBooks(int page, int size);
+
+    ResponseEntity<?> getHotBooks(int size);
+
+    ResponseEntity<?> getNewBooks(int size);
+
+    ResponseEntity<?> getBookById(int id);
 
     ResponseEntity<?> createBook(BookCreateRequest bookDTO);
 

@@ -4,7 +4,7 @@ export default class ApiError extends Error {
 
   constructor(message: string, status: number, timestamp?: string) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.status = status;
     this.timestamp = timestamp;
   }

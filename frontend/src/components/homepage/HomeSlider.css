@@ -1,0 +1,56 @@
+/* --- SLIDER TRANG CHỦ --- */
+.home-slider-container {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background: #fff;
+}
+
+.main-slider .slider-item img {
+    width: 100%;
+    aspect-ratio: 3000 / 1280; /* Tỷ lệ cố định theo đúng kích thước ảnh 1 (3000x1280) */
+    object-fit: cover; /* Đảm bảo các ảnh khác không bị méo, tự động cắt viền để khớp tỷ lệ */
+    display: block;
+}
+
+/* Tùy chỉnh các chấm điều hướng (dots) của Carousel */
+.main-slider .control-dots {
+    bottom: 10px;
+}
+
+.main-slider .control-dots .dot {
+    box-shadow: none !important;
+    background: #fff !important;
+    opacity: 0.6;
+    width: 10px;
+    height: 10px;
+}
+
+.main-slider .control-dots .dot.selected {
+    opacity: 1;
+    background: #2a8190 !important; /* Màu xanh Teal của Mộc Sách */
+    width: 24px;
+    border-radius: 5px;
+}
+
+/* Nút mũi tên chuyển ảnh */
+.main-slider .control-arrow {
+    background: rgba(0, 0, 0, 0.1) !important;
+    width: 40px;
+    height: 40px;
+    top: 50% !important;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    margin: 0 10px !important;
+    opacity: 0 !important;
+    transition: all 0.3s ease;
+}
+
+.home-slider-container:hover .control-arrow {
+    opacity: 1 !important;
+}
+
+.main-slider .control-arrow:hover {
+    background: rgba(0, 0, 0, 0.3) !important;
+}

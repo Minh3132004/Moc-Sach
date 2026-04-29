@@ -9,5 +9,13 @@ import lombok.NoArgsConstructor;
 
 public class BookResponse {
     private int idBook;
-    private String title;
+    private String nameBook;
+    private String author;
+    private String description;
+    private double listPrice;
+    private double sellPrice;
+    private int quantity;
+    private double avgRating;
+    private int soldQuantity;
+    private int discountPercent;
 }

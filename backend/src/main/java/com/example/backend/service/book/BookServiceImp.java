@@ -6,6 +6,7 @@ import com.example.backend.dao.book.BookRepository;
 import com.example.backend.dao.book.GenreRepository;
 import com.example.backend.dao.book.ImageRepository;
 import com.example.backend.dto.response.api.ApiResponse;
+import com.example.backend.dto.response.book.BookPageResponse;
 import com.example.backend.dto.response.book.BookResponse;
 import com.example.backend.entity.book.Book;
 import com.example.backend.entity.book.Genre;
@@ -14,9 +15,12 @@ import com.example.backend.exception.BadRequestException;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.InternalServerException;
 import com.example.backend.exception.NotFoundException;
-import com.example.backend.service.uploadImage.UploadImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,23 +37,96 @@ public class BookServiceImp implements BookService {
     private ImageRepository imageRepository;
 
     @Autowired
-    private UploadImageService uploadImageService;
-
-    @Autowired
     private GenreRepository genreRepository;
 
     // Lấy tất cả sách
     @Override
-    public ResponseEntity<?> getAllBooks() {
+    public ResponseEntity<?> getAllBooks(int page, int size) {
         try {
-            List<Book> bookList = bookRepository.findAll();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Book> bookPage = bookRepository.findAll(pageable);
+            List<Book> bookList = bookPage.getContent();
             List<BookResponse> bookDTOList = new ArrayList<>();
             for (Book book : bookList) {
                 bookDTOList.add(mapToBookResponse(book));
             }
-            return ResponseEntity.ok().body(ApiResponse.success("Lấy danh sách sách thành công", bookDTOList));
+            BookPageResponse response = new BookPageResponse(
+                    bookDTOList,
+                    bookPage.getTotalElements(),
+                    bookPage.getTotalPages(),
+                    bookPage.getSize()
+            );
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy danh sách sách thành công", response));
         } catch (Exception e) {
             throw new InternalServerException("Lấy danh sách sách thất bại", e);
+        }
+    }
+
+    // Lấy sách bán chạy
+    @Override
+    public ResponseEntity<?> getHotBooks(int size) {
+        try {
+            Pageable pageable = PageRequest.of(
+                    0,
+                    size,
+                    Sort.by(Sort.Direction.DESC, "soldQuantity").and(Sort.by(Sort.Direction.DESC, "avgRating"))
+            );
+            Page<Book> bookPage = bookRepository.findAll(pageable);
+            List<Book> bookList = bookPage.getContent();
+            List<BookResponse> bookDTOList = new ArrayList<>();
+            for (Book book : bookList) {
+                bookDTOList.add(mapToBookResponse(book));
+            }
+            BookPageResponse response = new BookPageResponse(
+                    bookDTOList,
+                    bookPage.getTotalElements(),
+                    bookPage.getTotalPages(),
+                    bookPage.getSize()
+            );
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy sách bán chạy thành công", response));
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy sách bán chạy thất bại", e);
+        }
+    }
+
+    // Lấy sách mới
+    @Override
+    public ResponseEntity<?> getNewBooks(int size) {
+        try {
+            Pageable pageable = PageRequest.of(
+                    0,
+                    size,
+                    Sort.by(Sort.Direction.DESC, "idBook")
+            );
+            Page<Book> bookPage = bookRepository.findAll(pageable);
+            List<Book> bookList = bookPage.getContent();
+            List<BookResponse> bookDTOList = new ArrayList<>();
+            for (Book book : bookList) {
+                bookDTOList.add(mapToBookResponse(book));
+            }
+            BookPageResponse response = new BookPageResponse(
+                    bookDTOList,
+                    bookPage.getTotalElements(),
+                    bookPage.getTotalPages(),
+                    bookPage.getSize()
+            );
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy sách mới thành công", response));
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy sách mới thất bại", e);
+        }
+    }
+
+    // Lấy sách theo id
+    @Override
+    public ResponseEntity<?> getBookById(int id) {
+        try {
+            Book book = bookRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy sách với ID: " + id));
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy sách thành công", mapToBookResponse(book)));
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy sách thất bại", e);
         }
     }
 
@@ -237,6 +314,17 @@ public class BookServiceImp implements BookService {
     }
 
     private BookResponse mapToBookResponse(Book book) {
-        return new BookResponse(book.getIdBook(), book.getNameBook());
+        return new BookResponse(
+                book.getIdBook(),
+                book.getNameBook(),
+                book.getAuthor(),
+                book.getDescription(),
+                book.getListPrice(),
+                book.getSellPrice(),
+                book.getQuantity(),
+                book.getAvgRating(),
+                book.getSoldQuantity(),
+                book.getDiscountPercent()
+        );
     }
 }
