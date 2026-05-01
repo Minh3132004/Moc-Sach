@@ -9,7 +9,8 @@ import img2 from '../../../assets/home-slider/2.jpg';
 const HomeSlider: React.FC = () => {
     const banners = [
         { id: 1, image: img1, title: 'Banner 1' },
-        { id: 2, image: img2, title: 'Banner 2' }
+        { id: 2, image: img2, title: 'Banner 2' },
+        { id: 3, image: img1, title: 'Banner 1' }
     ];
 
     return (

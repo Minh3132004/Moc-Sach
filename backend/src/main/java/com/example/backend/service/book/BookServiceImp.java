@@ -65,10 +65,10 @@ public class BookServiceImp implements BookService {
 
     // Lấy sách bán chạy
     @Override
-    public ResponseEntity<?> getHotBooks(int size) {
+    public ResponseEntity<?> getHotBooks(int page, int size) {
         try {
             Pageable pageable = PageRequest.of(
-                    0,
+                    page,
                     size,
                     Sort.by(Sort.Direction.DESC, "soldQuantity").and(Sort.by(Sort.Direction.DESC, "avgRating"))
             );
@@ -87,6 +87,33 @@ public class BookServiceImp implements BookService {
             return ResponseEntity.ok().body(ApiResponse.success("Lấy sách bán chạy thành công", response));
         } catch (Exception e) {
             throw new InternalServerException("Lấy sách bán chạy thất bại", e);
+        }
+    }
+
+    // Lấy sách hot theo thể loại
+    @Override
+    public ResponseEntity<?> getHotBooksByGenre(int idGenre, int page, int size) {
+        try {
+            Pageable pageable = PageRequest.of(
+                    page,
+                    size,
+                    Sort.by(Sort.Direction.DESC, "soldQuantity").and(Sort.by(Sort.Direction.DESC, "avgRating"))
+            );
+            Page<Book> bookPage = bookRepository.findByListGenres_IdGenre(idGenre, pageable);
+            List<Book> bookList = bookPage.getContent();
+            List<BookResponse> bookDTOList = new ArrayList<>();
+            for (Book book : bookList) {
+                bookDTOList.add(mapToBookResponse(book));
+            }
+            BookPageResponse response = new BookPageResponse(
+                    bookDTOList,
+                    bookPage.getTotalElements(),
+                    bookPage.getTotalPages(),
+                    bookPage.getSize()
+            );
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy danh sách sách theo thể loại thành công", response));
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy danh sách sách theo thể loại thất bại", e);
         }
     }
 

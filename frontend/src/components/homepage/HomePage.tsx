@@ -2,6 +2,7 @@ import React from 'react';
 import HomeSlider from './homeslider/HomeSlider';
 import SmallBanners from './smallbanners/SmallBanners';
 import FlashSale from './flashsale/FlashSale';
+import BestSeller from './bestseller/BestSeller';
 import './HomePage.css';
 
 import img3 from '../../assets/decorations/trang-tri-bia-sach-6.jpg.webp';
@@ -39,6 +40,8 @@ const HomePage: React.FC = () => {
             <SmallBanners banners={horizontalBanners} layout="horizontal" />
             
             <FlashSale />
+
+            <BestSeller />
 
             {/* Các phần khác như Sách mới, Sách bán chạy sẽ thêm ở đây */}
             <div className="homepage-content">

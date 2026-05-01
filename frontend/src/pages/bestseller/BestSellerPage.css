@@ -1,0 +1,135 @@
+.bestseller-page {
+    padding: 20px 0 40px 0;
+    min-height: 80vh;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #333;
+    transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+    color: #2a8190;
+}
+
+.breadcrumb-icon {
+    font-size: 12px !important;
+    color: #999;
+}
+
+.breadcrumb-current {
+    color: #2a8190;
+    font-weight: 600;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.bestseller-header-container {
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.bs-page-header-top {
+    background-color: #2a8190; /* Đổi sang màu xanh Teal đậm của hệ thống */
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bs-page-trending-icon {
+    color: #2a8190;
+    background: #fff;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.bs-page-header-title {
+    font-weight: bold;
+    font-size: 18px;
+    color: #ffffff; /* Chữ trắng trên nền xanh đậm */
+    letter-spacing: 0.5px;
+}
+
+.bs-page-genre-bar {
+    display: flex;
+    padding: 0 20px; /* Bỏ padding top/bottom để border-bottom sát chữ hơn */
+    justify-content: space-between; /* Phân bổ đều các thể loại */
+    align-items: center;
+    border-top: 1px solid #f0f0f0;
+    flex-wrap: wrap; /* Tự động xuống dòng nếu quá nhiều thể loại */
+}
+
+.genre-item {
+    background: none;
+    border: none;
+    padding: 15px 10px; /* Tăng padding dọc để thanh đẹp hơn */
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent; /* Đậm hơn một chút */
+    flex: 1; /* Mỗi item chiếm không gian bằng nhau */
+    text-align: center; /* Căn giữa chữ trong item */
+    min-width: fit-content; /* Không để chữ bị co quá mức */
+}
+
+.genre-item:hover {
+    color: #2a8190;
+}
+
+.genre-item.active {
+    color: #2a8190;
+    font-weight: bold;
+    border-bottom: 3px solid #2a8190;
+}
+
+.bestseller-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.bestseller-empty {
+    text-align: center;
+    padding: 50px;
+    background: #fff;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.loading-container, .error-container {
+    text-align: center;
+    padding: 100px 0;
+    font-size: 1.2rem;
+}
+
+.error-container {
+    color: #ee4d2d;
+}
+
+@media (max-width: 768px) {
+    .bestseller-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 10px;
+    }
+}

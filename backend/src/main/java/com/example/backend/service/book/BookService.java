@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 public interface BookService {
     ResponseEntity<?> getAllBooks(int page, int size);
 
-    ResponseEntity<?> getHotBooks(int size);
+    ResponseEntity<?> getHotBooks(int page, int size);
+
+    ResponseEntity<?> getHotBooksByGenre(int idGenre, int page, int size);
 
     ResponseEntity<?> getFlashSaleBook(int page, int size);
 

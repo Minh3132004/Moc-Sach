@@ -26,8 +26,20 @@ public class BookController {
     }
 
     @GetMapping("/hot")
-    public ResponseEntity<?> getHotBooks(@RequestParam(defaultValue = "4") int size) {
-        return bookService.getHotBooks(size);
+    public ResponseEntity<?> getHotBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        return bookService.getHotBooks(page, size);
+    }
+
+    @GetMapping("/hot-by-genre")
+    public ResponseEntity<?> getHotBooksByGenre(
+            @RequestParam int idGenre,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return bookService.getHotBooksByGenre(idGenre, page, size);
     }
 
     @GetMapping("/flashsale")

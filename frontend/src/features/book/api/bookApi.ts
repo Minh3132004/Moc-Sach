@@ -41,9 +41,16 @@ async function getBook(endpoint: string): Promise<BookListResult> {
 }
 
 // Tạo phương thức lấy sách bán chạy
-export async function getHotBook(size = 4): Promise<BookListResult> {
+export async function getHotBook(size = 5, page = 0): Promise<BookListResult> {
    // Xác định endpoint
-   const endpoint: string = `/books/hot?size=${size}`;
+   const endpoint: string = `/books/hot?size=${size}&page=${page}`;
+
+   return getBook(endpoint);
+}
+
+// Tạo phương thức lấy sách hot theo thể loại
+export async function getHotBooksByGenre(idGenre: number, size = 10, page = 0): Promise<BookListResult> {
+   const endpoint: string = `/books/hot-by-genre?idGenre=${idGenre}&size=${size}&page=${page}`;
 
    return getBook(endpoint);
 }
@@ -162,17 +169,6 @@ export async function getTotalNumberOfBooks(): Promise<number> {
    } catch (error) {
       console.error("Error fetching total number of books:", error);
       return 0;
-   }
-}
-
-// Hàm lấy 3 sách bán chạy nhất
-export async function get3BestSellerBooks(): Promise<BookModel[]> {
-   try {
-      const result = await getHotBook(3);
-      return result.bookList;
-   } catch (error) {
-      console.error("Error fetching best seller books:", error);
-      return [];
    }
 }
 

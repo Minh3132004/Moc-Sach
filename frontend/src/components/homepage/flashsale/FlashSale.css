@@ -85,6 +85,15 @@
     box-sizing: border-box;
 }
 
+.flash-sale-empty-state {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px 16px;
+    text-align: center;
+    color: #2a8190;
+    font-weight: 600;
+}
+
 .flash-sale-item {
     flex: 1; /* Tự động chia đều không gian */
     min-width: 0; /* Cho phép co giãn nhỏ hơn content */

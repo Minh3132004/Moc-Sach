@@ -1,0 +1,86 @@
+.flash-sale-page {
+    padding: 20px 0 40px 0;
+    min-height: 80vh;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #333;
+    transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+    color: #2a8190;
+}
+
+.breadcrumb-icon {
+    font-size: 12px !important;
+    color: #999;
+}
+
+.breadcrumb-current {
+    color: #2a8190; /* Màu xanh Teal chủ đạo đồng bộ với Navbar */
+    font-weight: 600;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.flash-sale-banner-container {
+    width: 100%;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.flash-sale-banner {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+.flash-sale-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.flash-sale-empty {
+    text-align: center;
+    padding: 50px;
+    background: #fff;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.loading-container, .error-container {
+    text-align: center;
+    padding: 100px 0;
+    font-size: 1.2rem;
+}
+
+.error-container {
+    color: #ee4d2d;
+}
+
+@media (max-width: 768px) {
+    .flash-sale-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 10px;
+    }
+}
