@@ -1,7 +1,47 @@
 import "./Navbar.css";
 import TopBanner from "./TopBanner";
+import { useEffect, useRef, useState } from "react";
+import { AuthModal } from "../../auth";
 
 function Navbar() {
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<"login" | "register">("login");
+  const closeAccountMenuTimeoutRef = useRef<number | null>(null);
+
+  const openAccountMenu = () => {
+    if (closeAccountMenuTimeoutRef.current !== null) {
+      window.clearTimeout(closeAccountMenuTimeoutRef.current);
+      closeAccountMenuTimeoutRef.current = null;
+    }
+    setShowAccountMenu(true);
+  };
+
+  const scheduleCloseAccountMenu = () => {
+    if (closeAccountMenuTimeoutRef.current !== null) {
+      window.clearTimeout(closeAccountMenuTimeoutRef.current);
+    }
+
+    closeAccountMenuTimeoutRef.current = window.setTimeout(() => {
+      setShowAccountMenu(false);
+      closeAccountMenuTimeoutRef.current = null;
+    }, 200);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (closeAccountMenuTimeoutRef.current !== null) {
+        window.clearTimeout(closeAccountMenuTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const openAuthModal = (tab: "login" | "register") => {
+    setAuthModalTab(tab);
+    setShowAuthModal(true);
+    setShowAccountMenu(false);
+  };
+
   return (
     <>
       <TopBanner />
@@ -46,12 +86,26 @@ function Navbar() {
               </svg>
               <span>Giỏ hàng</span>
             </div>
-            <div className="nav-item">
+            <div
+              className="nav-item account-item"
+              onMouseEnter={openAccountMenu}
+              onMouseLeave={scheduleCloseAccountMenu}
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="8" r="4"></circle>
                 <path d="M4 21c2-4 14-4 16 0"></path>
               </svg>
               <span>Tài khoản</span>
+              {showAccountMenu && (
+                <div className="account-dropdown">
+                  <button className="account-dropdown-btn" type="button" onClick={() => openAuthModal("login")}>
+                    Đăng nhập
+                  </button>
+                  <button className="account-dropdown-btn" type="button" onClick={() => openAuthModal("register")}>
+                    Đăng ký
+                  </button>
+                </div>
+              )}
             </div>
             <button className="language-switch" type="button" aria-label="Chọn ngôn ngữ">
               <span className="language-flag" aria-hidden="true">★</span>
@@ -63,6 +117,12 @@ function Navbar() {
           </nav>
         </div>
       </header>
+
+      <AuthModal
+        open={showAuthModal}
+        initialTab={authModalTab}
+        onClose={() => setShowAuthModal(false)}
+      />
     </>
   );
 }

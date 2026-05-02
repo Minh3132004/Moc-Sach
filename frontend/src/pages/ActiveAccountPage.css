@@ -1,0 +1,106 @@
+.active-account-wrap {
+  width: min(720px, 100%);
+  margin: 48px auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.active-account-card {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.active-account-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  background: linear-gradient(180deg, #f0fbff 0%, #ffffff 60%);
+}
+
+.active-account-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.active-account-body {
+  padding: 18px 20px 20px;
+  display: grid;
+  gap: 14px;
+}
+
+.active-account-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.active-account-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+}
+
+.active-account-icon.success {
+  background: #2a8190;
+}
+
+.active-account-icon.error {
+  background: #dc2626;
+}
+
+.active-account-icon.loading {
+  background: #64748b;
+}
+
+.active-account-message {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.active-account-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.active-account-btn {
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.active-account-btn.primary {
+  background: #2a8190;
+  color: #ffffff;
+}
+
+.active-account-btn.primary:hover {
+  background: #23a6b6;
+}
+
+.active-account-btn.outline {
+  background: #ffffff;
+  color: #2a8190;
+  border: 1px solid #2a8190;
+}
+
+.active-account-btn.outline:hover {
+  background: #f0fbff;
+}

@@ -97,7 +97,7 @@ public class UserServiceImp implements UserService {
             // Gửi email cho người dùng để kích hoạt
             sendEmailActivation(user.getEmail(), user.getActivationCode());
 
-            return ResponseEntity.ok(ApiResponse.success("Đăng ký thành công!", null));
+            return ResponseEntity.ok(ApiResponse.success("Đăng ký thành công , vui lòng kiểm tra email để kích hoạt tài khoản !", null));
         } catch (ConflictException | NotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -223,7 +223,7 @@ public class UserServiceImp implements UserService {
 
     //Gửi email kích hoạt tài khoản
     private void sendEmailActivation(String email, String activationCode) {
-        String endpointFE = "http://localhost:3000";
+        String endpointFE = "http://localhost:5173";
         String url = endpointFE + "/active/" + email + "/" + activationCode;
         String subject = "Kích hoạt tài khoản";
         String message = "Cảm ơn bạn đã là thành viên của chúng tôi. Vui lòng kích hoạt tài khoản!: <br/> Mã kích hoạt: <strong>"+ activationCode +"<strong/>";
