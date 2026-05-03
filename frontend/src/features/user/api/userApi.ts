@@ -114,3 +114,44 @@ export async function changeAvatar(idUser: number, avatarBase64: string): Promis
      
      return response;
  }
+
+ // Hàm kích hoạt tài khoản
+ export async function activateAccount(email: string, activationCode: string): Promise<ApiResponse<null>> {
+     const endpoint = `/user/active-account?email=${encodeURIComponent(email)}&activationCode=${encodeURIComponent(activationCode)}`;
+     const response = await api.get<any, ApiResponse<null>>(endpoint);
+     
+     if (!isApiSuccess(response)) {
+         throw new Error(response.message || "Kích hoạt tài khoản thất bại");
+     }
+     
+     return response;
+ }
+
+ export interface JwtResponse {
+     jwtToken: string;
+ }
+
+ // Hàm đăng nhập
+ export async function loginUser(payload: any): Promise<ApiResponse<JwtResponse>> {
+     const endpoint = `/user/authenticate`;
+     const response = await api.post<any, ApiResponse<JwtResponse>>(endpoint, payload);
+     
+     if (!isApiSuccess(response)) {
+         throw new Error(response.message || "Đăng nhập thất bại");
+     }
+     
+     // Lưu token vào localStorage
+     if (response.data?.jwtToken) {
+         localStorage.setItem("token", response.data.jwtToken);
+     }
+     
+     return response;
+ }
+
+ export interface JwtPayload {
+     id: string;
+     avatar: string;
+     lastName: string;
+     enabled: boolean;
+     role: string;
+ }

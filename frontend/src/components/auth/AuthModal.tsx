@@ -4,6 +4,8 @@ import type { AuthModalProps, AuthTab } from "./types";
 import { LoginForm, RegisterForm } from "./components";
 import { useRegisterForm, useLoginForm } from "./hooks";
 import { useRegisterUser } from "../../features/user/hooks/useRegisterUser";
+import { useLoginUser } from "../../features/user/hooks/useLoginUser";
+import { useAuth } from "../../app/providers/AuthProvider";
 
 function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
   const [tab, setTab] = useState<AuthTab>(initialTab);
@@ -13,6 +15,8 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
   const registerForm = useRegisterForm();
 
   const registerMutation = useRegisterUser();
+  const loginMutation = useLoginUser();
+  const { login } = useAuth();
   const [registerStatus, setRegisterStatus] = useState<"idle" | "success" | "error">("idle");
 
   const idBase = useId();
@@ -38,6 +42,38 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
   }, [open, onClose]);
 
   if (!open) return null;
+
+  const handleSubmitLogin = async () => {
+    loginForm.markAllTouched();
+    if (!loginForm.canSubmit) return;
+
+    setRegisterMessage("");
+    setRegisterStatus("idle");
+    try {
+      const payload = {
+        username: loginForm.username,
+        password: loginForm.password,
+      };
+
+      const result = await loginMutation.mutateAsync(payload);
+      const message = result.message || "Đăng nhập thành công!";
+
+      if (result.data?.jwtToken) {
+        login(result.data.jwtToken);
+      }
+
+      setRegisterMessage(message);
+      setRegisterStatus("success");
+      
+      // Chờ 1.5s để người dùng kịp đọc thông báo rồi đóng modal (không cần reload)
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (e: any) {
+      setRegisterMessage(e?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
+      setRegisterStatus("error");
+    }
+  };
 
   const handleSubmitRegister = async () => {
     registerForm.markAllTouched();
@@ -124,10 +160,12 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
         {tab === "login" ? (
           <LoginForm
             username={loginForm.username}
+            usernameError={loginForm.usernameError}
             password={loginForm.password}
+            passwordError={loginForm.passwordError}
             onChangeUsername={loginForm.setUsername}
             onChangePassword={loginForm.setPassword}
-            onSubmit={() => { }}
+            onSubmit={handleSubmitLogin}
             onSkip={onClose}
           />
         ) : (

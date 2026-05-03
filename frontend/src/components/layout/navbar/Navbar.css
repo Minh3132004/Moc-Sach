@@ -203,30 +203,18 @@
   line-height: 20px;
 }
 
-.account-dropdown-btn::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #94a3b8;
-  flex: 0 0 8px;
+.account-dropdown-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  color: #64748b;
+  flex: 0 0 20px;
+  transition: all 0.2s ease;
 }
 
-.account-dropdown-btn:first-child {
-  background: linear-gradient(90deg, rgba(42, 129, 144, 0.14), rgba(42, 129, 144, 0.06));
-  color: #0f172a;
-}
-
-.account-dropdown-btn:first-child::before {
-  background: #2a8190;
-}
-
-.account-dropdown-btn:last-child {
-  background: #ffffff;
-}
-
-.account-dropdown-btn:last-child::before {
-  background: #f59e0b;
+.account-dropdown-btn:hover svg {
+  color: #2a8190;
 }
 
 /* Nút cuối không có border-bottom */
