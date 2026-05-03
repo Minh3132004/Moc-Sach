@@ -1,5 +1,6 @@
 import BookModel from "../model/BookModel";
 import api from "../../../lib/http";
+import { type ApiResponse, isApiSuccess } from "../../../lib/apiResponse";
 
 // Tạo ra các biến trả về
 export interface BookListResult {
@@ -27,8 +28,13 @@ function mapToBookModel(book: any): BookModel {
 
 // Tạo phương thức lấy sách 
 async function getBook(endpoint: string): Promise<BookListResult> {
-   const response: any = await api.get(endpoint);
-   const payload = response?.data ?? response;
+   const response = await api.get<any, ApiResponse<any>>(endpoint);
+   
+   if (!isApiSuccess(response)) {
+      throw new Error(response.message || "Lỗi lấy danh sách sách");
+   }
+
+   const payload = response.data;
 
    const responseData = payload?.bookList ?? [];
    const totalPages: number = payload?.totalPages ?? 0;
@@ -130,8 +136,13 @@ export async function searchBook(idGenre?: number, keySearch?: string, size?: nu
 // Tạo phương thức lấy sách theo mã sách
 export async function getBookById(idBook: number): Promise<BookModel> {
    const endpoint: string = `/books/detail/${idBook}`;
-   const response: any = await api.get(endpoint);
-   const payload = response?.data ?? response;
+   const response = await api.get<any, ApiResponse<any>>(endpoint);
+   
+   if (!isApiSuccess(response)) {
+      throw new Error(response.message || "Không tìm thấy sách");
+   }
+   
+   const payload = response.data;
    return mapToBookModel(payload);
 }
 
@@ -139,8 +150,9 @@ export async function getBookById(idBook: number): Promise<BookModel> {
 export async function getBookByIdCartItem(idCart: number): Promise<BookModel | null> {
    const endpoint = `/cart-items/${idCart}/book`;
    try {
-      const response: any = await api.get(endpoint);
-      return response ? mapToBookModel(response) : null;
+      const response = await api.get<any, ApiResponse<any>>(endpoint);
+      if (!isApiSuccess(response)) return null;
+      return response.data ? mapToBookModel(response.data) : null;
    } catch (error) {
       console.error('Error: ', error);
       return null;
@@ -148,24 +160,28 @@ export async function getBookByIdCartItem(idCart: number): Promise<BookModel | n
 }
 
 // Cập nhật thông tin sách
-export async function updateBook(book: BookModel): Promise<any> {
+export async function updateBook(book: BookModel): Promise<ApiResponse<any>> {
    const endpoint = `/books/update`;
-   return api.put(endpoint, book);
+   return api.put<any, ApiResponse<any>>(endpoint, book);
 }
 
 //Lấy sách theo mã chi tiết đơn hàng
 export async function getBookByIdOrderDetail(idOrderDetail: number): Promise<BookModel> {
    const endpoint = `/order-detail/${idOrderDetail}/book`;
-   const response: any = await api.get(endpoint);
-   return mapToBookModel(response);
+   const response = await api.get<any, ApiResponse<any>>(endpoint);
+   if (!isApiSuccess(response)) {
+      throw new Error(response.message || "Không tìm thấy sách cho chi tiết đơn hàng");
+   }
+   return mapToBookModel(response.data);
 }
 
 // Hàm lấy tổng số sách
 export async function getTotalNumberOfBooks(): Promise<number> {
    try {
       const endPoint = "/books/get-all?size=1&page=0";
-      const response: any = await api.get(endPoint);
-      return response?.totalElements || 0;
+      const response = await api.get<any, ApiResponse<any>>(endPoint);
+      if (!isApiSuccess(response)) return 0;
+      return response.data?.totalElements || 0;
    } catch (error) {
       console.error("Error fetching total number of books:", error);
       return 0;
@@ -175,9 +191,11 @@ export async function getTotalNumberOfBooks(): Promise<number> {
 // Hàm lấy số lượng sách theo genre ID
 export async function getBookCountByGenreId(genreId: number): Promise<number> {
    try {
-   const endpoint = `/genre/${genreId}/listBooks`;
-      const response = await api.get(endpoint);
-      const responseData: BookModel[] = await Promise.all((response?.data?.bookList ?? []).map(async (book: any) =>
+      const endpoint = `/genre/${genreId}/listBooks`;
+      const response = await api.get<any, ApiResponse<any>>(endpoint);
+      if (!isApiSuccess(response)) return 0;
+      
+      const responseData: BookModel[] = await Promise.all((response.data?.bookList ?? []).map(async (book: any) =>
          new BookModel(
             book.idBook,
             book.nameBook,

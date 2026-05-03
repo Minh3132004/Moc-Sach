@@ -14,10 +14,10 @@ const BestSellerPage: React.FC = () => {
     const size = 10;
 
     // Hook lấy sách hot (khi chọn "Tất cả")
-    const { data: hotBooksData, isLoading: loadingHot, isError: errorHot } = useHotBooks(size, currentPage - 1);
+    const { data: hotBooksData, isLoading: loadingHot, isError: errorHot, error: errHotObj } = useHotBooks(size, currentPage - 1);
     
     // Hook lấy sách theo thể loại (khi chọn thể loại cụ thể)
-    const { data: genreBooksData, isLoading: loadingGenre, isError: errorGenre } = useHotBooksByGenre(selectedGenre, size, currentPage - 1);
+    const { data: genreBooksData, isLoading: loadingGenre, isError: errorGenre, error: errGenreObj } = useHotBooksByGenre(selectedGenre, size, currentPage - 1);
 
     const handlePagination = (page: number) => {
         setCurrentPage(page);
@@ -31,10 +31,11 @@ const BestSellerPage: React.FC = () => {
 
     const isLoading = selectedGenre === null ? loadingHot : loadingGenre;
     const isError = selectedGenre === null ? errorHot : errorGenre;
+    const errObj = selectedGenre === null ? errHotObj : errGenreObj;
     const { data: genres } = useAllGenres();
 
     if (isLoading) return <div className="loading-container">Đang tải dữ liệu Sách bán chạy...</div>;
-    if (isError) return <div className="error-container">Lỗi tải dữ liệu!</div>;
+    if (isError) return <div className="error-container">Lỗi: {errObj instanceof Error ? errObj.message : "Lỗi tải dữ liệu!"}</div>;
 
     const books = (selectedGenre === null ? hotBooksData?.bookList : genreBooksData?.bookList) || [];
     const totalPages = (selectedGenre === null ? hotBooksData?.totalPages : genreBooksData?.totalPages) || 0;

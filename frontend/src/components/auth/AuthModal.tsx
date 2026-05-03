@@ -2,8 +2,9 @@ import "./AuthModal.css";
 import { useEffect, useId, useState } from "react";
 import type { AuthModalProps, AuthTab } from "./types";
 import { LoginForm, RegisterForm } from "./components";
-import { useLoginForm, useRegisterForm } from "./hooks";
+import { useRegisterForm, useLoginForm } from "./hooks";
 import { useRegisterUser } from "../../features/user/hooks/useRegisterUser";
+
 function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
   const [tab, setTab] = useState<AuthTab>(initialTab);
   const [registerMessage, setRegisterMessage] = useState<string>("");
@@ -54,9 +55,8 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
         phoneNumber: registerForm.phone,
       };
 
-      const result: any = await registerMutation.mutateAsync(payload);
-
-      const message = result?.message || "Đăng ký thành công! Vui lòng kiểm tra email.";
+      const result = await registerMutation.mutateAsync(payload);
+      const message = result.message || "Đăng ký thành công! Vui lòng kiểm tra email.";
 
       setRegisterMessage(message);
       setRegisterStatus("success");
@@ -127,7 +127,7 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
             password={loginForm.password}
             onChangeUsername={loginForm.setUsername}
             onChangePassword={loginForm.setPassword}
-            onSubmit={() => {}}
+            onSubmit={() => { }}
             onSkip={onClose}
           />
         ) : (

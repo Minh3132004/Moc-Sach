@@ -19,7 +19,7 @@ interface FlashSaleProps {
 const FlashSale: React.FC<FlashSaleProps> = ({ displaySeconds = 18 * 3600 }) => {
     // remainingSeconds: số giây còn lại do client quản lý, chỉ để hiển thị
     const [remainingSeconds, setRemainingSeconds] = useState<number>(displaySeconds);
-    const { data: flashSaleData, isLoading, isError } = useFlashSaleBooks(5);
+    const { data: flashSaleData, isLoading, isError, error } = useFlashSaleBooks(5);
 
     // Reset bộ đếm hiển thị khi prop thay đổi (hiếm dùng nhưng tiện cho kiểm thử)
     useEffect(() => {
@@ -39,7 +39,7 @@ const FlashSale: React.FC<FlashSaleProps> = ({ displaySeconds = 18 * 3600 }) => 
     const formatTime = (time: number) => time.toString().padStart(2, '0');
 
     if (isLoading) return <div style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu Flash Sale...</div>;
-    if (isError) return <div style={{ textAlign: 'center', padding: '20px', color: 'red' }}>Lỗi tải dữ liệu Flash Sale!</div>;
+    if (isError) return <div style={{ textAlign: 'center', padding: '20px', color: 'red' }}>Lỗi: {error instanceof Error ? error.message : "Lỗi tải dữ liệu Flash Sale!"}</div>;
 
     const books = flashSaleData?.bookList || [];
 

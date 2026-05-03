@@ -11,7 +11,7 @@ const FlashSalePage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const size = 10; // Số lượng sản phẩm mỗi trang
 
-    const { data: flashSaleData, isLoading, isError } = useFlashSaleBooks(size, currentPage - 1);
+    const { data: flashSaleData, isLoading, isError, error } = useFlashSaleBooks(size, currentPage - 1);
 
     const handlePagination = (page: number) => {
         setCurrentPage(page);
@@ -19,7 +19,7 @@ const FlashSalePage: React.FC = () => {
     };
 
     if (isLoading) return <div className="loading-container">Đang tải dữ liệu Flash Sale...</div>;
-    if (isError) return <div className="error-container">Lỗi tải dữ liệu Flash Sale!</div>;
+    if (isError) return <div className="error-container">Lỗi: {error instanceof Error ? error.message : "Lỗi tải dữ liệu Flash Sale!"}</div>;
 
     const books = flashSaleData?.bookList || [];
     const totalPages = flashSaleData?.totalPages || 0;

@@ -1,5 +1,6 @@
 import UserModel from "../model/UserModel";
 import api from "../../../lib/http";
+import { type ApiResponse, isApiSuccess } from "../../../lib/apiResponse";
 
 async function getUser(endPoint : string) : Promise<UserModel[]> {
     const response = await api.get(endPoint);
@@ -103,7 +104,13 @@ export async function changeAvatar(idUser: number, avatarBase64: string): Promis
 }
 
  // Hàm đăng ký user
- export async function registerUser(payload: any): Promise<any> {
+ export async function registerUser(payload: any): Promise<ApiResponse<null>> {
      const endpoint = `/user/register`;
-     return api.post(endpoint, payload);
+     const response = await api.post<any, ApiResponse<null>>(endpoint, payload);
+     
+     if (!isApiSuccess(response)) {
+         throw new Error(response.message || "Đăng ký thất bại");
+     }
+     
+     return response;
  }

@@ -7,10 +7,10 @@ import { useHotBooks } from '../../../features/book/hooks';
 import FlashSaleItem from '../flashsale/FlashSaleItem';
 
 const BestSeller: React.FC = () => {
-    const { data: bestSellerData, isLoading, isError } = useHotBooks(5, 0);
+    const { data: bestSellerData, isLoading, isError, error } = useHotBooks(5, 0);
 
     if (isLoading) return <div className="bs-loading">Đang tải sách bán chạy...</div>;
-    if (isError) return <div className="bs-error">Lỗi tải dữ liệu!</div>;
+    if (isError) return <div className="bs-error">Lỗi: {error instanceof Error ? error.message : "Lỗi tải dữ liệu!"}</div>;
 
     const books = bestSellerData?.bookList || [];
     const hasBooks = books.length > 0;
