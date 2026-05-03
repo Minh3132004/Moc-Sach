@@ -5,6 +5,8 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  position: relative;
+  z-index: 9998;
 }
 
 /* Khối chứa nội dung navbar được căn giữa và giới hạn chiều rộng */
@@ -84,11 +86,11 @@
 
 /* Nút bấm tìm kiếm */
 .search-btn {
-  width: 54px;
-  height: 40px;
-  background: #2a8190 !important;
+  width: 48px;
+  height: 38px;
+  background: #2a8190;
   border: none;
-  color: #ffffff;
+  color: #fff;
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -97,17 +99,7 @@
 
 /* Hiệu ứng hover cho nút tìm kiếm */
 .search-btn:hover {
-  background: #1e616d !important;
-}
-
-.search-btn {
-  width: 48px;
-  height: 38px;
-  border: none;
-  background: #d61f26;
-  color: #fff;
-  display: grid;
-  place-items: center;
+  background: #1e616d;
 }
 
 .search-btn svg {
@@ -147,6 +139,110 @@
   border-color: #f1f5f9;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   color: #2a8190;
+}
+
+/* --- ACCOUNT ITEM DROPDOWN --- */
+.account-item {
+  position: relative;
+}
+
+/* Dropdown menu cho tài khoản */
+.account-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  background: linear-gradient(180deg, #f0fbff 0%, #ffffff 28%);
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 9999;
+  animation: slideDown 0.2s ease;
+  min-width: 220px;
+}
+
+.account-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: transparent;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Nút trong dropdown */
+.account-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #eef2f7;
+  font-size: 14px;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.account-dropdown-btn::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #94a3b8;
+  flex: 0 0 8px;
+}
+
+.account-dropdown-btn:first-child {
+  background: linear-gradient(90deg, rgba(42, 129, 144, 0.14), rgba(42, 129, 144, 0.06));
+  color: #0f172a;
+}
+
+.account-dropdown-btn:first-child::before {
+  background: #2a8190;
+}
+
+.account-dropdown-btn:last-child {
+  background: #ffffff;
+}
+
+.account-dropdown-btn:last-child::before {
+  background: #f59e0b;
+}
+
+/* Nút cuối không có border-bottom */
+.account-dropdown-btn:last-child {
+  border-bottom: none;
+}
+
+/* Hiệu ứng hover cho nút trong dropdown */
+.account-dropdown-btn:hover {
+  background: #f8fafc;
+  color: #2a8190;
+  padding-left: 22px;
+}
+
+.account-dropdown-btn:active {
+  background: #eaf7fb;
 }
 
 /* Kích thước icon SVG trong navbar */

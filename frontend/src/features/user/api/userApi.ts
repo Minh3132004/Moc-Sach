@@ -102,4 +102,8 @@ export async function changeAvatar(idUser: number, avatarBase64: string): Promis
     }
 }
 
-
+ // Hàm đăng ký user
+ export async function registerUser(payload: any): Promise<any> {
+     const endpoint = `/user/register`;
+     return api.post(endpoint, payload);
+ }
