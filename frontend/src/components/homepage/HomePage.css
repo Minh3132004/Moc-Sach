@@ -34,22 +34,3 @@
     }
 }
 
-.section-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #2a8190;
-    margin-bottom: 20px;
-    padding-left: 10px;
-    border-left: 4px solid #2a8190;
-    text-transform: uppercase;
-}
-
-.homepage-content {
-    margin-top: 40px;
-}
-
-.placeholder-books {
-    background: #f8fafc;
-    border-radius: 12px;
-    border: 2px dashed #e2e8f0;
-}

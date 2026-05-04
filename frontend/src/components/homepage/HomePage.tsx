@@ -4,6 +4,7 @@ import SmallBanners from './smallbanners/SmallBanners';
 import FlashSale from './flashsale/FlashSale';
 import BestSeller from './bestseller/BestSeller';
 import TopBuyers from './leaderboard/TopBuyers';
+import NewBooks from './newbooks/NewBooks';
 import './HomePage.css';
 
 import img3 from '../../assets/decorations/trang-tri-bia-sach-6.jpg.webp';
@@ -45,19 +46,7 @@ const HomePage: React.FC = () => {
             <BestSeller />
 
             <TopBuyers />
-
-            {/* Các phần khác như Sách mới, Sách bán chạy sẽ thêm ở đây */}
-            <div className="homepage-content">
-                <section className="book-section">
-                    <h2 className="section-title">Sách Mới Cập Nhật</h2>
-                    <div className="placeholder-books">
-                        {/* BookList component sẽ được đặt ở đây */}
-                        <p style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
-                            Danh sách sách đang được tải...
-                        </p>
-                    </div>
-                </section>
-            </div>
+            <NewBooks />
         </div>
     );
 };
