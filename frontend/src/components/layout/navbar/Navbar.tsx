@@ -1,6 +1,7 @@
 import "./Navbar.css";
 import TopBanner from "./TopBanner";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { AuthModal } from "../../auth";
 import { useAuth } from "../../../app/providers/AuthProvider";
 
@@ -52,12 +53,12 @@ function Navbar() {
         <div className="nav-row">
           <div className="brand">Mộc Sách</div>
 
-          <button className="menu-btn" type="button" aria-label="Danh mục">
-            <span className="menu-dot"></span>
-            <span className="menu-dot"></span>
-            <span className="menu-dot"></span>
-            <span className="menu-dot"></span>
-          </button>
+          <Link to="/books" className="nav-item" aria-label="Danh sách sách" style={{ textDecoration: 'none' }}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+            </svg>
+            <span>Danh mục</span>
+          </Link>
 
           <div className="search-wrap">
             <input

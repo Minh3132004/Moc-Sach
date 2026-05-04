@@ -93,6 +93,29 @@ export async function getAllBook(size?: number, page?: number): Promise<BookList
    return getBook(endpoint);
 }
 
+//Tạo phương thức lọc sách tổng hợp
+export async function filterBooks(
+   author?: string,
+   genreIds?: number[],
+   minPrice?: number,
+   maxPrice?: number,
+   sort?: string,
+   size?: number,
+   page?: number
+): Promise<BookListResult> {
+   if (!size) size = 8;
+   if (page === undefined) page = 0;
+
+   let endpoint = `/books/filter?size=${size}&page=${page}`;
+   if (author) endpoint += `&author=${encodeURIComponent(author)}`;
+   if (genreIds && genreIds.length > 0) endpoint += `&genreIds=${genreIds.join(',')}`;
+   if (minPrice !== undefined) endpoint += `&minPrice=${minPrice}`;
+   if (maxPrice !== undefined) endpoint += `&maxPrice=${maxPrice}`;
+   if (sort) endpoint += `&sort=${sort}`;
+
+   return getBook(endpoint);
+}
+
 //Tạo phương thức tìm kiếm sách .
 export async function searchBook(idGenre?: number, keySearch?: string, size?: number, page?: number): Promise<BookListResult> {
 

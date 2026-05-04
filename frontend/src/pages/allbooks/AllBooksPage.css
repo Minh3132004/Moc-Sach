@@ -1,0 +1,195 @@
+.allbooks-page {
+  background: #f0f0f0;
+  padding: 16px 0;
+}
+
+.allbooks-page .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 12px;
+}
+
+.allbooks-body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+}
+
+.allbooks-sidebar {
+  background: #fff;
+  border-radius: 4px;
+  padding: 12px;
+  height: fit-content;
+}
+
+.sidebar-section + .sidebar-section {
+  margin-top: 16px;
+}
+
+.sidebar-title {
+  font-weight: 700;
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.sidebar-item {
+  font-size: 13px;
+  padding: 6px 0;
+  color: #2d2d2d;
+}
+
+.sidebar-item.active {
+  color: #d32f2f;
+  font-weight: 700;
+}
+
+.sidebar-note {
+  font-size: 12px;
+  color: #777;
+}
+
+.sidebar-input {
+  width: 100%;
+  font-size: 13px;
+  padding: 7px 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  outline: none;
+  color: #333;
+  background: #fff;
+  height: 34px;
+  box-sizing: border-box;
+}
+
+.sidebar-input:focus {
+  border-color: #d32f2f;
+}
+
+.sidebar-input::placeholder {
+  color: #9a9a9a;
+}
+
+.sidebar-clear {
+  margin-top: 8px;
+  width: 100%;
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+}
+
+.sidebar-clear:hover {
+  border-color: #d32f2f;
+  color: #d32f2f;
+}
+
+.sidebar-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #2d2d2d;
+  padding: 4px 0;
+}
+
+.sidebar-checkbox input {
+  width: 13px;
+  height: 13px;
+}
+
+.sidebar-clear-all {
+  margin-top: 20px;
+  width: 100%;
+  font-size: 13px;
+  padding: 10px;
+  border: 1px solid #d32f2f;
+  border-radius: 4px;
+  background: #fff;
+  color: #d32f2f;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.sidebar-clear-all:hover {
+  background: #d32f2f;
+  color: #fff;
+}
+
+.allbooks-content {
+  background: #fff;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.allbooks-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toolbar-label {
+  font-size: 13px;
+  color: #333;
+}
+
+.toolbar-select {
+  font-size: 13px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+}
+
+.toolbar-select option {
+  color: #333;
+  background: #fff;
+}
+
+.allbooks-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.allbooks-empty {
+  padding: 24px 0;
+  text-align: center;
+  color: #666;
+}
+
+@media (max-width: 1024px) {
+  .allbooks-body {
+    grid-template-columns: 1fr;
+  }
+
+  .allbooks-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .allbooks-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .allbooks-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

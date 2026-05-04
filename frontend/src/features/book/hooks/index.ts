@@ -6,4 +6,5 @@ export { useHotBooks } from "./useHotBooks";
 export { useHotBooksByGenre } from "./useHotBooksByGenre";
 export { useNewBooks } from "./useNewBooks";
 export { useSearchBooks } from "./useSearchBooks";
+export { useFilterBooks } from "./useFilterBooks";
 export { useTotalBookCount } from "./useBookCounts";

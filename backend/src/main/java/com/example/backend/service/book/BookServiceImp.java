@@ -16,15 +16,19 @@ import com.example.backend.exception.BadRequestException;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.InternalServerException;
 import com.example.backend.exception.NotFoundException;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +64,73 @@ public class BookServiceImp implements BookService {
             return ResponseEntity.ok().body(ApiResponse.success("Lấy danh sách sách thành công", response));
         } catch (Exception e) {
             throw new InternalServerException("Lấy danh sách sách thất bại", e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> filterBooks(String author, List<Integer> genreIds, Double minPrice, Double maxPrice, String sort, int page, int size) {
+        try {
+            Sort sortObj = Sort.by(Sort.Direction.DESC, "idBook");
+            if (sort != null) {
+                switch (sort) {
+                    case "newest":
+                        sortObj = Sort.by(Sort.Direction.DESC, "idBook");
+                        break;
+                    case "bestselling":
+                        sortObj = Sort.by(Sort.Direction.DESC, "soldQuantity");
+                        break;
+                    case "price_asc":
+                        sortObj = Sort.by(Sort.Direction.ASC, "sellPrice");
+                        break;
+                    case "price_desc":
+                        sortObj = Sort.by(Sort.Direction.DESC, "sellPrice");
+                        break;
+                }
+            }
+
+            Pageable pageable = PageRequest.of(page, size, sortObj);
+
+            Specification<Book> spec = (root, query, criteriaBuilder) -> {
+                List<Predicate> predicates = new ArrayList<>();
+
+                if (author != null && !author.trim().isEmpty()) {
+                    predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("author")), "%" + author.trim().toLowerCase() + "%"));
+                }
+
+                if (genreIds != null && !genreIds.isEmpty()) {
+                    Join<Book, Genre> genreJoin = root.join("listGenres");
+                    predicates.add(genreJoin.get("idGenre").in(genreIds));
+                    query.distinct(true);
+                }
+
+                if (minPrice != null) {
+                    predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("sellPrice"), minPrice));
+                }
+
+                if (maxPrice != null) {
+                    predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("sellPrice"), maxPrice));
+                }
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            };
+
+            Page<Book> bookPage = bookRepository.findAll(spec, pageable);
+            List<Book> bookList = bookPage.getContent();
+            List<BookResponse> bookDTOList = new ArrayList<>();
+            for (Book book : bookList) {
+                bookDTOList.add(mapToBookResponse(book));
+            }
+
+            BookPageResponse response = new BookPageResponse(
+                    bookDTOList,
+                    bookPage.getTotalElements(),
+                    bookPage.getTotalPages(),
+                    bookPage.getSize()
+            );
+
+            return ResponseEntity.ok().body(ApiResponse.success("Lọc danh sách sách thành công", response));
+        } catch (Exception e) {
+            throw new InternalServerException("Lọc danh sách sách thất bại", e);
         }
     }
 

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/books")
@@ -23,6 +24,19 @@ public class BookController {
             @RequestParam(defaultValue = "10") int size
     ) {
         return bookService.getAllBooks(page, size);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterBooks(
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) List<Integer> genreIds,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return bookService.filterBooks(author, genreIds, minPrice, maxPrice, sort, page, size);
     }
 
     @GetMapping("/hot")
