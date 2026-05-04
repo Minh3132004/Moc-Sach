@@ -99,7 +99,7 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
       // Delay switching to login so user can read the success message
       setTimeout(() => {
         setTab("login");
-        loginForm.setUsername(registerForm.phone || registerForm.email || registerForm.username);
+        loginForm.setUsername(registerForm.username);
         loginForm.setPassword("");
       }, 3000);
     } catch (e: any) {

@@ -19,6 +19,7 @@ public class Endpoints {
             "/favorite-books/**",
             "/cart-items/**",
             "/orders/**",
+            "/order/**",
             "/order-detail/**",
             "/coupons",
             "/books",

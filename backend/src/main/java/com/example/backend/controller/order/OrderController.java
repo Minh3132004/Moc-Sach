@@ -25,4 +25,10 @@ public class OrderController {
     public ResponseEntity<?> update(@Valid @RequestBody UpdateOrderRequest orderDTO) {
         return orderService.update(orderDTO);
     }
+
+    // Lấy top người mua theo tổng giá trị đơn hàng
+    @GetMapping("/top-buyers")
+    public ResponseEntity<?> getTopBuyers(@RequestParam(defaultValue = "100") int size) {
+        return orderService.getTopBuyers(size);
+    }
 }

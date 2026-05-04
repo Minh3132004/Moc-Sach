@@ -13,6 +13,7 @@ import com.example.backend.dto.request.order.UpdateOrderRequest;
 import com.example.backend.dto.response.api.ApiResponse;
 import com.example.backend.dto.response.order.OrderDetailResponse;
 import com.example.backend.dto.response.order.OrderResponse;
+import com.example.backend.dto.response.order.TopBuyerResponse;
 import com.example.backend.entity.coupon.Coupon;
 import com.example.backend.entity.order.Delivery;
 import com.example.backend.entity.payment.Payment;
@@ -26,6 +27,7 @@ import com.example.backend.exception.InternalServerException;
 import com.example.backend.exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -180,6 +182,18 @@ public class OrderServiceImp implements OrderService {
             throw new ConflictException("Cập nhật đơn hàng thất bại do dữ liệu xung đột");
         } catch (Exception e) {
             throw new InternalServerException("Cập nhật đơn hàng thất bại", e);
+        }
+    }
+
+    // Lấy top người mua theo tổng giá trị đơn hàng
+    @Override
+    public ResponseEntity<?> getTopBuyers(int size) {
+        try {
+            int safeSize = Math.max(1, Math.min(size, 100));
+            List<TopBuyerResponse> topBuyers = orderRepository.findTopBuyers(PageRequest.of(0, safeSize));
+            return ResponseEntity.ok(ApiResponse.success("Lấy danh sách người mua nhiều nhất thành công", topBuyers));
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy danh sách người mua nhiều nhất thất bại", e);
         }
     }
 

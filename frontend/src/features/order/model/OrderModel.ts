@@ -1,4 +1,3 @@
-import CartItemModel from "./CartItemModel";
 import UserModel from "./UserModel";
 
 class OrderModel {
