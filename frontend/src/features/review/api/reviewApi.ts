@@ -1,12 +1,17 @@
 import ReviewModel from "../model/ReviewModel";
 import api from "../../../lib/http";
+import { type ApiResponse, isApiSuccess } from "../../../lib/apiResponse";
 
-// Hàm lấy danh sách review
-async function getReview(endPoint: string) : Promise<ReviewModel[]>  {
-    const response = await api.get(endPoint);
-    const responseData = response._embedded.reviews;
+// Hàm lấy danh sách review theo chuẩn ApiResponse từ backend
+async function getReview(endPoint: string): Promise<ReviewModel[]> {
+    const response = await api.get<any, ApiResponse<any[]>>(endPoint);
+    if (!isApiSuccess(response)) {
+        throw new Error(response.message || "Lỗi lấy danh sách review");
+    }
 
-    const reviewList = responseData.map((review: ReviewModel) => {
+    const responseData = response.data ?? [];
+
+    return responseData.map((review: ReviewModel) => {
         return new ReviewModel(
             review.idReview,
             review.content,
@@ -14,22 +19,21 @@ async function getReview(endPoint: string) : Promise<ReviewModel[]>  {
             review.timestamp
         );
     });
-    
-    return reviewList;
 }
 
 // Hàm lấy danh sách review theo id sách
 export function getReviewByIdBook(idBook: number) : Promise<ReviewModel[]>  {
-    const endPoint = `/books/${idBook}/listReviews`;
+    const endPoint = `/review/book/${idBook}`;
     return getReview(endPoint);
 }
 
 // Hàm lấy tổng số review
 export async function getTotalNumberOfReviews(): Promise<number> {
     try {
-        const endPoint = "/reviews?size=1"; // Chỉ lấy 1 item để có page metadata
-        const response = await api.get(endPoint);
-        return response.page?.totalElements || 0;
+        const endPoint = "/review/count";
+        const response = await api.get<any, ApiResponse<number>>(endPoint);
+        if (!isApiSuccess(response)) return 0;
+        return response.data ?? 0;
     } catch (error) {
         console.error("Error fetching total number of reviews:", error);
         return 0;

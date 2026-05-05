@@ -7,6 +7,7 @@ import ActiveAccountPage from "../pages/ActiveAccountPage";
 import BestSellerPage from "../pages/bestseller/BestSellerPage";
 import FlashSalePage from "../pages/flashsale/FlashSalePage";
 import AllBooksPage from "../pages/allbooks/AllBooksPage";
+import BookDetailPage from "../pages/book/BookDetailPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/flash-sale" element={<FlashSalePage />} />
           <Route path="/best-sellers" element={<BestSellerPage />} />
           <Route path="/books" element={<AllBooksPage />} />
+          <Route path="/books/:idBook" element={<BookDetailPage />} />
           <Route path="/active/:email/:activationCode" element={<ActiveAccountPage />} />
         </Routes>
       </main>

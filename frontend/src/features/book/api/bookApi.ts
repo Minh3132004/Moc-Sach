@@ -12,6 +12,9 @@ export interface BookListResult {
 
 // Hàm map dữ liệu sang BookModel dùng chung
 function mapToBookModel(book: any): BookModel {
+   const genres = Array.isArray(book.genres)
+      ? book.genres.map((g: any) => ({ idGenre: g.idGenre, nameGenre: g.nameGenre }))
+      : undefined;
    return new BookModel(
       book.idBook,
       book.nameBook,
@@ -22,7 +25,8 @@ function mapToBookModel(book: any): BookModel {
       book.quantity,
       book.avgRating,
       book.soldQuantity,
-      book.discountPercent
+      book.discountPercent,
+      genres,
    );
 }
 
@@ -218,20 +222,7 @@ export async function getBookCountByGenreId(genreId: number): Promise<number> {
       const response = await api.get<any, ApiResponse<any>>(endpoint);
       if (!isApiSuccess(response)) return 0;
       
-      const responseData: BookModel[] = await Promise.all((response.data?.bookList ?? []).map(async (book: any) =>
-         new BookModel(
-            book.idBook,
-            book.nameBook,
-            book.author,
-            book.description,
-            book.listPrice,
-            book.sellPrice,
-            book.quantity,
-            book.avgRating,
-            book.soldQuantity,
-            book.discountPercent
-         )
-      ));
+      const responseData: BookModel[] = (response.data?.bookList ?? []).map((book: any) => mapToBookModel(book));
       return responseData.length;
    } catch (error) {
       console.error("Error fetching book count by genre:", error);

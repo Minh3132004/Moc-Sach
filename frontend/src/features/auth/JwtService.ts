@@ -1,6 +1,6 @@
 //Sử dụng thư viện jwt-decode để giúp decode token 
 import { jwtDecode } from "jwt-decode";
-import { JwtPayload } from "./JwtPayload";
+import type { JwtPayload } from "./JwtPayload";
 
 
 //Kiểm tra token có tồn tại không 

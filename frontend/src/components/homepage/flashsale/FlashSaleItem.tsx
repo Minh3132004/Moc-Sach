@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './FlashSale.css';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import { useImagesByBook } from '../../../features/image/hooks';
@@ -29,34 +30,36 @@ const FlashSaleItem: React.FC<FlashSaleItemProps> = ({ book }) => {
     }
 
     return (
-        <div className="flash-sale-item">
-            <div className="item-image-wrapper">
-                <img src={imageUrl} alt={book.nameBook} className="item-image" />
-            </div>
-            <div className="item-title">{book.nameBook}</div>
-            <div className="item-price-row">
-                <span className="current-price">{(book.sellPrice || 0).toLocaleString('vi-VN')} đ</span>
-                {book.discountPercent && book.discountPercent > 0 ? (
-                    <span className="discount-badge">-{book.discountPercent}%</span>
-                ) : null}
-            </div>
-            <div className="original-price">
-                {book.listPrice ? `${book.listPrice.toLocaleString('vi-VN')} đ` : ''}
-            </div>
-
-            <div className={`sold-progress-container ${isSoldOut ? 'sold-out' : isAlmostOut ? 'almost-out' : ''}`}>
-                <div
-                    className="sold-progress-bar"
-                    style={{ width: isSoldOut ? '100%' : `${soldProgress}%` }}
-                ></div>
-                <div className="sold-text">
-                    {isAlmostOut || isSoldOut ? (
-                        <LocalFireDepartmentIcon className="fire-icon" style={{ fontSize: '14px', color: '#fff' }} />
+        <Link to={`/books/${book.idBook}`} className="flash-sale-item-link">
+            <div className="flash-sale-item">
+                <div className="item-image-wrapper">
+                    <img src={imageUrl} alt={book.nameBook} className="item-image" />
+                </div>
+                <div className="item-title">{book.nameBook}</div>
+                <div className="item-price-row">
+                    <span className="current-price">{(book.sellPrice || 0).toLocaleString('vi-VN')} đ</span>
+                    {book.discountPercent && book.discountPercent > 0 ? (
+                        <span className="discount-badge">-{book.discountPercent}%</span>
                     ) : null}
-                    {statusText}
+                </div>
+                <div className="original-price">
+                    {book.listPrice ? `${book.listPrice.toLocaleString('vi-VN')} đ` : ''}
+                </div>
+
+                <div className={`sold-progress-container ${isSoldOut ? 'sold-out' : isAlmostOut ? 'almost-out' : ''}`}>
+                    <div
+                        className="sold-progress-bar"
+                        style={{ width: isSoldOut ? '100%' : `${soldProgress}%` }}
+                    ></div>
+                    <div className="sold-text">
+                        {isAlmostOut || isSoldOut ? (
+                            <LocalFireDepartmentIcon className="fire-icon" style={{ fontSize: '14px', color: '#fff' }} />
+                        ) : null}
+                        {statusText}
+                    </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 };
 

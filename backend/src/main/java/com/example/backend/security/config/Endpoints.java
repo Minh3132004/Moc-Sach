@@ -24,6 +24,7 @@ public class Endpoints {
             "/coupons",
             "/books",
             "/books/**",
+            "/review/**",
     };
 
     // Phương thức POST không cần xác thực

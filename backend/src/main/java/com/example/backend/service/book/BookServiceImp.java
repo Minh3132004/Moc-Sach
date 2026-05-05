@@ -8,6 +8,7 @@ import com.example.backend.dao.book.ImageRepository;
 import com.example.backend.dto.response.api.ApiResponse;
 import com.example.backend.dto.response.book.BookPageResponse;
 import com.example.backend.dto.response.book.BookResponse;
+import com.example.backend.dto.response.genre.GenreResponse;
 import com.example.backend.dto.response.image.ImageResponse;
 import com.example.backend.entity.book.Book;
 import com.example.backend.entity.book.Genre;
@@ -272,9 +273,16 @@ public class BookServiceImp implements BookService {
     @Override
     public ResponseEntity<?> getBookById(int id) {
         try {
-            Book book = bookRepository.findById(id)
+            Book book = bookRepository.findDetailById(id)
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy sách với ID: " + id));
-            return ResponseEntity.ok().body(ApiResponse.success("Lấy sách thành công", mapToBookResponse(book)));
+            List<GenreResponse> genres = null;
+            if (book.getListGenres() != null && !book.getListGenres().isEmpty()) {
+                genres = new ArrayList<>();
+                for (Genre g : book.getListGenres()) {
+                    genres.add(new GenreResponse(g.getIdGenre(), g.getNameGenre()));
+                }
+            }
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy sách thành công", mapToBookResponse(book, genres)));
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -466,6 +474,10 @@ public class BookServiceImp implements BookService {
     }
 
     private BookResponse mapToBookResponse(Book book) {
+        return mapToBookResponse(book, null);
+    }
+
+    private BookResponse mapToBookResponse(Book book, List<GenreResponse> genres) {
         return new BookResponse(
                 book.getIdBook(),
                 book.getNameBook(),
@@ -476,7 +488,8 @@ public class BookServiceImp implements BookService {
                 book.getQuantity(),
                 book.getAvgRating(),
                 book.getSoldQuantity(),
-                book.getDiscountPercent()
+                book.getDiscountPercent(),
+                genres
         );
     }
 }

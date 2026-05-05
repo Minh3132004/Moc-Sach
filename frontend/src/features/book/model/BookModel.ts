@@ -1,8 +1,12 @@
+export interface BookGenreSummary {
+   idGenre: number;
+   nameGenre?: string;
+}
 
 class BookModel {
    id?: any;
    idBook: number;
-   nameBook?: string; 
+   nameBook?: string;
    author?: string;
    description?: string;
    listPrice?: number;
@@ -11,9 +15,21 @@ class BookModel {
    avgRating?: number;
    soldQuantity?: number;
    discountPercent?: number;
+   genres?: BookGenreSummary[];
 
-
-   constructor(idBook: number, nameBook?: string, author?: string, description?: string, listPrice?: number, sellPrice?: number, quantity?: number, avgRating?: number, soldQuantity?: number, discountPercent?: number) {
+   constructor(
+      idBook: number,
+      nameBook?: string,
+      author?: string,
+      description?: string,
+      listPrice?: number,
+      sellPrice?: number,
+      quantity?: number,
+      avgRating?: number,
+      soldQuantity?: number,
+      discountPercent?: number,
+      genres?: BookGenreSummary[],
+   ) {
       this.idBook = idBook;
       this.nameBook = nameBook;
       this.author = author;
@@ -24,6 +40,7 @@ class BookModel {
       this.avgRating = avgRating;
       this.soldQuantity = soldQuantity;
       this.discountPercent = discountPercent;
+      this.genres = genres;
    }
 }
 
