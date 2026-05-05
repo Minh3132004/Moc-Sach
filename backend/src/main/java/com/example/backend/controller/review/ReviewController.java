@@ -17,6 +17,19 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
+    // Lấy danh sách review theo sách
+    @GetMapping("/book/{idBook}")
+    public ResponseEntity<?> getReviewByBookId(
+            @PathVariable @Positive(message = "idBook phải lớn hơn 0") int idBook) {
+        return reviewService.getReviewsByBookId(idBook);
+    }
+
+    // Lấy tổng số review
+    @GetMapping("/count")
+    public ResponseEntity<?> getTotalReviews() {
+        return reviewService.getTotalReviews();
+    }
+
     // Lấy danh sách chờ đánh giá
     @GetMapping("/books-to-review/{userId}")
     public ResponseEntity<?> getBooksToReview(

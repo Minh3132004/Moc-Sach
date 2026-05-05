@@ -7,6 +7,7 @@ import com.example.backend.dao.user.UserRepository;
 import com.example.backend.dto.request.review.SubmitReviewRequest;
 import com.example.backend.dto.response.api.ApiResponse;
 import com.example.backend.dto.response.book.BookToReviewResponse;
+import com.example.backend.dto.response.review.ReviewResponse;
 import com.example.backend.entity.book.Book;
 import com.example.backend.entity.book.Image;
 import com.example.backend.entity.order.OrderDetail;
@@ -37,6 +38,42 @@ public class ReviewServiceImp implements ReviewService {
     private UserRepository userRepository;
     @Autowired
     private BookRepository bookRepository;
+
+    // Lấy review theo id sách
+    @Override
+    public ResponseEntity<?> getReviewsByBookId(int idBook) {
+        try {
+            if (!bookRepository.existsById(idBook)) {
+                throw new NotFoundException("Không tìm thấy sách");
+            }
+
+            List<Review> reviews = reviewRepository.findByBook_IdBookOrderByTimestampDesc(idBook);
+            List<ReviewResponse> response = new ArrayList<>();
+            for (Review review : reviews) {
+                response.add(new ReviewResponse(
+                        review.getIdReview(),
+                        review.getContent(),
+                        review.getRatingPoint(),
+                        review.getTimestamp()
+                ));
+            }
+            return ResponseEntity.ok(ApiResponse.success("Lấy danh sách đánh giá thành công", response));
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy danh sách đánh giá thất bại", e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getTotalReviews() {
+        try {
+            long total = reviewRepository.count();
+            return ResponseEntity.ok(ApiResponse.success("Lấy tổng số đánh giá thành công", total));
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy tổng số đánh giá thất bại", e);
+        }
+    }
 
     // Lấy tất cả các sách chưa đánh giá từ người dùng
     @Override

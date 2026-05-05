@@ -1,4 +1,4 @@
-import BookModel from "./BookModel";
+import BookModel from "../../book/model/BookModel";
 
 class CartItemModel {
    idCart?: any;

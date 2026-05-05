@@ -94,6 +94,15 @@
     font-weight: 600;
 }
 
+.flash-sale-item-link {
+    flex: 1;
+    min-width: 0;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
 .flash-sale-item {
     flex: 1; /* Tự động chia đều không gian */
     min-width: 0; /* Cho phép co giãn nhỏ hơn content */
