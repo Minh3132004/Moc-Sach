@@ -120,46 +120,6 @@ export async function filterBooks(
    return getBook(endpoint);
 }
 
-//Tạo phương thức tìm kiếm sách .
-export async function searchBook(idGenre?: number, keySearch?: string, size?: number, page?: number): Promise<BookListResult> {
-
-   // Nếu không truyền size thì mặc định là 8
-   if (!size) {
-      size = 8;
-   }
-
-   // Nếu không truyền page thì mặc định là 0
-   if (page === undefined) {
-      page = 0;
-   }
-
-   // Xác định endpoint
-
-   let endpoint: string;
-
-   //Tìm bởi thể loại
-   if (keySearch === "" && idGenre !== undefined) {
-      endpoint = `/books/search/findByListGenres_idGenre?sort=idBook,desc&size=${size}&page=${page}&idGenre=${idGenre}`;
-   }
-
-   //Tìm bởi tên sách
-   else if (keySearch !== "" && idGenre === undefined) {
-      endpoint = `/books/search/findByNameBookContaining?sort=idBook,desc&size=${size}&page=${page}&nameBook=${keySearch}`;
-   }
-
-   //Tìm bởi cả tên sách và thể loại
-   else if (keySearch != "" && idGenre !== undefined) {
-      endpoint = `/books/search/findByNameBookContainingAndListGenres_idGenre?sort=idBook,desc&size=${size}&page=${page}&nameBook=${keySearch}&idGenre=${idGenre}`;
-   }
-
-   //Nếu không thuộc trường hợp nào thì sẽ lấy tất cả sách
-   else {
-      endpoint = `/books?sort=idBook,desc&size=${size}&page=${page}`;
-   }
-
-   return getBook(endpoint);
-}
-
 // Tạo phương thức lấy sách theo mã sách
 export async function getBookById(idBook: number): Promise<BookModel> {
    const endpoint: string = `/books/detail/${idBook}`;
@@ -186,6 +146,7 @@ export async function getBookByIdCartItem(idCart: number): Promise<BookModel | n
    }
 }
 
+/*
 // Cập nhật thông tin sách
 export async function updateBook(book: BookModel): Promise<ApiResponse<any>> {
    const endpoint = `/books/update`;
@@ -201,6 +162,7 @@ export async function getBookByIdOrderDetail(idOrderDetail: number): Promise<Boo
    }
    return mapToBookModel(response.data);
 }
+*/
 
 // Hàm lấy tổng số sách
 export async function getTotalNumberOfBooks(): Promise<number> {
@@ -218,12 +180,11 @@ export async function getTotalNumberOfBooks(): Promise<number> {
 // Hàm lấy số lượng sách theo genre ID
 export async function getBookCountByGenreId(genreId: number): Promise<number> {
    try {
-      const endpoint = `/genre/${genreId}/listBooks`;
+      const endpoint = `/books/count-by-genre?idGenre=${genreId}`;
       const response = await api.get<any, ApiResponse<any>>(endpoint);
       if (!isApiSuccess(response)) return 0;
-      
-      const responseData: BookModel[] = (response.data?.bookList ?? []).map((book: any) => mapToBookModel(book));
-      return responseData.length;
+
+      return response.data ?? 0;
    } catch (error) {
       console.error("Error fetching book count by genre:", error);
       return 0;

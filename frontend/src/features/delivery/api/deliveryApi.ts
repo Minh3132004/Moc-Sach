@@ -1,6 +1,7 @@
 import DeliveryModel from "../model/DeliveryModel";
 import api from "../../../lib/http";
 
+/*
 export async function getDeliveryById(idDelivery: number) {
     const endPoint = `/deliveries/${idDelivery}`;
 
@@ -14,3 +15,4 @@ export async function getDeliveryById(idDelivery: number) {
 
     return delivery;
 }
+*/

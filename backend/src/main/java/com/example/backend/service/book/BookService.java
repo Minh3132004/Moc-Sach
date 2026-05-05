@@ -15,6 +15,8 @@ public interface BookService {
 
     ResponseEntity<?> getHotBooksByGenre(int idGenre, int page, int size);
 
+    ResponseEntity<?> getBookCountByGenre(int idGenre);
+
     ResponseEntity<?> getFlashSaleBook(int page, int size);
 
     ResponseEntity<?> getNewBooks(int size);

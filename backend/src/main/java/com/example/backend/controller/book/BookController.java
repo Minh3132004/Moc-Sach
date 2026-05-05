@@ -56,6 +56,13 @@ public class BookController {
         return bookService.getHotBooksByGenre(idGenre, page, size);
     }
 
+    @GetMapping("/count-by-genre")
+    public ResponseEntity<?> getBookCountByGenre(
+            @RequestParam int idGenre
+    ) {
+        return bookService.getBookCountByGenre(idGenre);
+    }
+
     @GetMapping("/flashsale")
     public ResponseEntity<?> getFlashSaleBook(
             @RequestParam(defaultValue = "0") int page,

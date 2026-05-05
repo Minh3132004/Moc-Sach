@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useActivateAccount } from "../features/user/hooks/useActivateAccount";
+import { useActivateAccount } from "../../features/user/hooks/useActivateAccount";
 import "./ActiveAccountPage.css";
 
 function ActiveAccountPage() {

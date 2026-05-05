@@ -1,7 +1,7 @@
-import UserModel from "../model/UserModel";
 import api from "../../../lib/http";
 import { type ApiResponse, isApiSuccess } from "../../../lib/apiResponse";
 
+/*
 async function getUser(endPoint : string) : Promise<UserModel[]> {
     const response = await api.get(endPoint);
     const responseData = response._embedded.users;
@@ -23,30 +23,7 @@ async function getUser(endPoint : string) : Promise<UserModel[]> {
     });
     return userList;
 }
-    
-// Hàm lấy user theo id review
-export async function getUserByIdReview(idReview : number) : Promise<UserModel> {
 
-    const endPoint = `/reviews/${idReview}/user`;
-
-    const response = await api.get(endPoint);
-
-    const user = new UserModel(
-        response.idUser,
-        response.dateOfBirth,
-        response.deliveryAddress,
-        response.email,
-        response.firstName,
-        response.lastName,
-        response.gender,
-        response.password,
-        response.phoneNumber,
-        response.username,
-        response.avatar,
-        response.enabled
-    );
-    return user;
-}
 
 // Hàm lấy 1 user theo id
 export async function get1User(idUser: number): Promise<UserModel> {
@@ -102,6 +79,7 @@ export async function changeAvatar(idUser: number, avatarBase64: string): Promis
         throw error;
     }
 }
+*/
 
  // Hàm đăng ký user
  export async function registerUser(payload: any): Promise<ApiResponse<null>> {
@@ -146,12 +124,4 @@ export async function changeAvatar(idUser: number, avatarBase64: string): Promis
      }
      
      return response;
- }
-
- export interface JwtPayload {
-     id: string;
-     avatar: string;
-     lastName: string;
-     enabled: boolean;
-     role: string;
  }

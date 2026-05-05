@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import ToastConfig from "./app/providers/toastconfig/ToastConfig";
 import "./index.css";
 import App from "./app/App";
 import QueryProvider from "./app/providers/QueryProvider";
@@ -14,6 +15,7 @@ createRoot(document.getElementById("root")!).render(
           <App />
         </AuthProvider>
       </QueryProvider>
+      <ToastConfig />
     </BrowserRouter>
   </StrictMode>
 );

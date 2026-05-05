@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { jwtDecode } from "jwt-decode";
-import type { JwtPayload } from "../../features/user/api/userApi";
+import type { JwtPayload } from "../../features/auth/JwtPayload";
 
 // Định nghĩa các thông tin và hàm mà AuthContext sẽ cung cấp ra ngoài
 interface AuthContextType {

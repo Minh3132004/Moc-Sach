@@ -8,6 +8,7 @@ import com.example.backend.dto.request.review.SubmitReviewRequest;
 import com.example.backend.dto.response.api.ApiResponse;
 import com.example.backend.dto.response.book.BookToReviewResponse;
 import com.example.backend.dto.response.review.ReviewResponse;
+import com.example.backend.dto.response.review.UserReviewResponse;
 import com.example.backend.entity.book.Book;
 import com.example.backend.entity.book.Image;
 import com.example.backend.entity.order.OrderDetail;
@@ -50,11 +51,23 @@ public class ReviewServiceImp implements ReviewService {
             List<Review> reviews = reviewRepository.findByBook_IdBookOrderByTimestampDesc(idBook);
             List<ReviewResponse> response = new ArrayList<>();
             for (Review review : reviews) {
+                if (review.getUser() == null) {
+                    throw new NotFoundException("Không tìm thấy người dùng");
+                }
+
+                UserReviewResponse userSummary = new UserReviewResponse(
+                        review.getUser().getIdUser(),
+                        review.getUser().getFirstName(),
+                        review.getUser().getLastName(),
+                        review.getUser().getAvatar()
+                );
+
                 response.add(new ReviewResponse(
                         review.getIdReview(),
                         review.getContent(),
                         review.getRatingPoint(),
-                        review.getTimestamp()
+                        review.getTimestamp(),
+                        userSummary
                 ));
             }
             return ResponseEntity.ok(ApiResponse.success("Lấy danh sách đánh giá thành công", response));
@@ -167,13 +180,29 @@ public class ReviewServiceImp implements ReviewService {
             review.setUser(od.getOrder().getUser());
             review.setOrderDetail(od);
 
-            reviewRepository.save(review);
+            Review savedReview = reviewRepository.save(review);
 
             od.setReview(true);
             orderDetailRepository.save(od);
 
-            updateBookRating(od.getBook());
-            return ResponseEntity.ok(ApiResponse.success("Đánh giá thành công!", null));
+                updateBookRating(od.getBook());
+
+                UserReviewResponse userSummary = new UserReviewResponse(
+                    od.getOrder().getUser().getIdUser(),
+                    od.getOrder().getUser().getFirstName(),
+                    od.getOrder().getUser().getLastName(),
+                    od.getOrder().getUser().getAvatar()
+                );
+
+                ReviewResponse response = new ReviewResponse(
+                    savedReview.getIdReview(),
+                    savedReview.getContent(),
+                    savedReview.getRatingPoint(),
+                    savedReview.getTimestamp(),
+                    userSummary
+                );
+
+                return ResponseEntity.ok(ApiResponse.success("Đánh giá thành công!", response));
         } catch (BadRequestException | NotFoundException | ConflictException e) {
             throw e;
         } catch (DataIntegrityViolationException e) {

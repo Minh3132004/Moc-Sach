@@ -4,7 +4,6 @@ export interface BookGenreSummary {
 }
 
 class BookModel {
-   id?: any;
    idBook: number;
    nameBook?: string;
    author?: string;

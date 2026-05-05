@@ -1,5 +1,5 @@
 export interface JwtPayload {
-   id: string;
+   id: number;
    avatar: string;
    lastName: string;
    enabled: boolean;

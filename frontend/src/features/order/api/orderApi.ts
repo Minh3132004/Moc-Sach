@@ -1,6 +1,7 @@
 import OrderModel from "../model/OrderModel";
 import api from "../../../lib/http";
 
+/*
 // Helper function để lấy payment với xử lý lỗi
 async function getPayment(idOrder: number): Promise<string> {
    try {
@@ -173,3 +174,4 @@ export async function getAllOrders(): Promise<OrderModel[]> {
         return [];
     }
 }
+*/

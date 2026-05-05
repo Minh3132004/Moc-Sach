@@ -3,7 +3,7 @@ import Navbar from "../components/layout/navbar/Navbar";
 import Footer from "../components/layout/footer/Footer";
 import HomePage from "../components/homepage/HomePage";
 import { Route, Routes } from "react-router-dom";
-import ActiveAccountPage from "../pages/ActiveAccountPage";
+import ActiveAccountPage from "../pages/activeaccount/ActiveAccountPage";
 import BestSellerPage from "../pages/bestseller/BestSellerPage";
 import FlashSalePage from "../pages/flashsale/FlashSalePage";
 import AllBooksPage from "../pages/allbooks/AllBooksPage";

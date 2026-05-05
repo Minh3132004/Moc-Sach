@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
@@ -14,14 +14,20 @@ import { useBookById } from "../../features/book/hooks";
 import { useHotBooksByGenre } from "../../features/book/hooks/useHotBooksByGenre";
 import { useImagesByBook } from "../../features/image/hooks";
 import { useReviewsByBook } from "../../features/review/hooks";
-import { addCartItem } from "../../features/cart/api/cartApi";
+import { useAddCartItem } from "../../features/cart/hooks";
+import { useAuth } from "../../app/providers/AuthProvider";
 import ImageModel from "../../features/image/model/ImageModel";
 import "./BookDetailPage.css";
 
 const PLACEHOLDER_IMG = "https://via.placeholder.com/400x520?text=No+Image";
 
+/**
+ * Chuyển đổi đối tượng ImageModel thành đường dẫn URL hiển thị được.
+ * Nếu không có ảnh, trả về ảnh mặc định (placeholder).
+ */
 function imageUrl(img: ImageModel | undefined): string {
-  return img?.dataImage || img?.urlImage || PLACEHOLDER_IMG;
+  if (!img || !img.urlImage) return PLACEHOLDER_IMG;
+  return img.urlImage;
 }
 
 const SERVICE_POLICIES = [
@@ -30,39 +36,49 @@ const SERVICE_POLICIES = [
   "Chính sách khách sỉ: Ưu đãi khi mua số lượng lớn",
 ];
 
-const PROMO_CHIPS = ["Mã giảm 70K", "Mã giảm 30K", "Thanh toán ví giảm thêm"];
+const PROMO_CHIPS = ["Mã giảm 20%", "Mã giảm 30%", "Mã giảm 10%", "Mã giảm 40%"];
 
 const BookDetailPage: React.FC = () => {
+  // Lấy idBook từ URL (ví dụ: /books/123 => idBook = 123)
   const { idBook: idParam } = useParams<{ idBook: string }>();
   const idBook = Number(idParam);
-  const invalidId = !Number.isFinite(idBook) || idBook <= 0;
+  const invalidId = !Number.isFinite(idBook) || idBook <= 0; //Kiểm tra lại tính hợp lệ của id
 
+  // Lấy thông tin user hiện tại từ AuthContext để phục vụ tính năng Giỏ hàng
+  const { user } = useAuth();
+  const idUser = user?.id;
+
+  // FETCH DỮ LIỆU: Gọi API lấy thông tin sách, hình ảnh và đánh giá
   const { data: book, isLoading, isError, error } = useBookById(invalidId ? undefined : idBook);
   const { data: images, isLoading: imagesLoading } = useImagesByBook(invalidId ? undefined : idBook);
   const { data: reviews, isLoading: reviewsLoading } = useReviewsByBook(invalidId ? undefined : idBook);
 
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  const [activeImageIndex, setActiveImageIndex] = useState(0); // Ảnh đang được chọn hiển thị
+  const [quantity, setQuantity] = useState(1); // Số lượng người dùng muốn mua
 
+  // Reset lại trạng thái trang khi người dùng chuyển sang xem sách khác
   useEffect(() => {
     setActiveImageIndex(0);
     setQuantity(1);
   }, [idBook]);
 
+  // Xử lý danh sách ảnh: Đưa ảnh Thumbnail (ảnh đại diện) lên đầu danh sách
   const sortedImages = useMemo(() => {
     if (!images?.length) return [];
     return [...images].sort((a, b) => Number(!!b.thumbnail) - Number(!!a.thumbnail));
   }, [images]);
 
   const mainImage = sortedImages[activeImageIndex] ?? sortedImages[0];
-  const maxQty = book?.quantity ?? 0;
 
+  // Kiểm tra số lượng tồn kho để không cho người dùng chọn mua quá số lượng đang có
+  const maxQty = book?.quantity ?? 0;
   useEffect(() => {
     if (maxQty > 0 && quantity > maxQty) {
       setQuantity(maxQty);
     }
   }, [maxQty, quantity]);
 
+  // XỬ LÝ SÁCH LIÊN QUAN: Tìm các sách cùng thể loại hoặc sách đang hot
   const firstGenreId = book?.genres?.[0]?.idGenre ?? null;
   const { data: relatedByGenre } = useHotBooksByGenre(firstGenreId, 10, 0);
   const { data: relatedHot } = useQuery({
@@ -71,15 +87,15 @@ const BookDetailPage: React.FC = () => {
     enabled: Boolean(book) && firstGenreId === null,
   });
 
+  // Lọc bỏ cuốn sách hiện tại ra khỏi danh sách sách liên quan
   const relatedBooks = useMemo(() => {
     const list = firstGenreId !== null ? relatedByGenre?.bookList : relatedHot?.bookList;
     if (!list || !book) return [];
     return list.filter((item) => item.idBook !== book.idBook).slice(0, 10);
   }, [firstGenreId, relatedByGenre, relatedHot, book]);
 
-  const addMutation = useMutation({
-    mutationFn: () => addCartItem(book!.idBook, quantity),
-  });
+  // MUTATION: Xử lý việc gửi yêu cầu thêm vào giỏ hàng lên server
+  const addMutation = useAddCartItem();
 
   if (invalidId) {
     return (
@@ -110,11 +126,8 @@ const BookDetailPage: React.FC = () => {
   const soldOut = (book.quantity ?? 0) <= 0;
   const reviewCount = reviews?.length ?? 0;
   const detailItems: Array<{ label: string; value: string }> = [
-    { label: "Mã hàng", value: `${book.idBook}` },
     { label: "Tác giả", value: book.author ?? "Đang cập nhật" },
-    { label: "Giá niêm yết", value: `${(book.listPrice ?? 0).toLocaleString("vi-VN")} đ` },
     { label: "Giá bán", value: `${(book.sellPrice ?? 0).toLocaleString("vi-VN")} đ` },
-    { label: "Số lượng tồn", value: `${book.quantity ?? 0}` },
     { label: "Đã bán", value: `${book.soldQuantity ?? 0}` },
     { label: "Đánh giá", value: `${(book.avgRating ?? 0).toFixed(1)} / 5` },
     {
@@ -123,26 +136,32 @@ const BookDetailPage: React.FC = () => {
     },
   ];
 
+  // Tính toán tỷ lệ phần trăm đánh giá theo số sao (5 sao chiếm bao nhiêu %, 4 sao bao nhiêu %...)
   const ratingPercentages = [5, 4, 3, 2, 1].map((star) => {
     const count = reviews?.filter((review) => Math.round(review.ratingPoint) === star).length ?? 0;
     const percent = reviewCount > 0 ? Math.round((count / reviewCount) * 100) : 0;
     return { star, percent };
   });
 
+  /**
+   * Thực hiện thêm sản phẩm vào giỏ hàng khi người dùng nhấn nút.
+   */
   const handleAddToCart = () => {
     if (soldOut) return;
-    addMutation.mutate();
+    addMutation.mutate({ idUser, idBook: book!.idBook, quantity });
   };
 
   return (
     <div className="book-detail-page">
       <div className="container">
         <nav className="breadcrumb book-detail-breadcrumb" aria-label="Breadcrumb">
-          <Link to="/">SÁCH TIẾNG VIỆT</Link>
+          <Link to="/">TRANG CHỦ</Link>
           <ArrowForwardIosIcon className="breadcrumb-icon" aria-hidden />
           {book.genres?.[0]?.nameGenre ? (
             <>
-              <Link to="/best-sellers">{book.genres[0].nameGenre.toUpperCase()}</Link>
+              <Link to={`/books?genreIds=${book.genres[0].idGenre}`}>
+                {book.genres[0].nameGenre.toUpperCase()}
+              </Link>
               <ArrowForwardIosIcon className="breadcrumb-icon" aria-hidden />
             </>
           ) : null}
@@ -293,38 +312,76 @@ const BookDetailPage: React.FC = () => {
           {reviewsLoading ? (
             <p>Đang tải đánh giá…</p>
           ) : (
-            <div className="book-detail-review-summary">
-              <div className="book-detail-review-average">
-                <strong>{(book.avgRating ?? 0).toFixed(1)}</strong>
-                <span>/5</span>
-                <Rating value={book.avgRating ?? 0} precision={0.5} readOnly size="small" />
-                <p>({reviewCount} đánh giá)</p>
-              </div>
-              <div className="book-detail-review-bars">
-                {ratingPercentages.map((item) => (
-                  <div key={item.star} className="book-detail-review-bar-item">
-                    <span>{item.star} sao</span>
-                    <div className="book-detail-review-bar-track">
-                      <div className="book-detail-review-bar-fill" style={{ width: `${item.percent}%` }} />
+            <>
+              <div className="book-detail-review-summary">
+                <div className="book-detail-review-average">
+                  <strong>{(book.avgRating ?? 0).toFixed(1)}</strong>
+                  <span>/5</span>
+                  <Rating value={book.avgRating ?? 0} precision={0.5} readOnly size="small" />
+                  <p>({reviewCount} đánh giá)</p>
+                </div>
+                <div className="book-detail-review-bars">
+                  {ratingPercentages.map((item) => (
+                    <div key={item.star} className="book-detail-review-bar-item">
+                      <span>{item.star} sao</span>
+                      <div className="book-detail-review-bar-track">
+                        <div className="book-detail-review-bar-fill" style={{ width: `${item.percent}%` }} />
+                      </div>
+                      <span>{item.percent}%</span>
                     </div>
-                    <span>{item.percent}%</span>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <div className="book-detail-review-action">
+                  <button type="button" className="book-detail-review-btn">
+                    <BorderColorOutlinedIcon fontSize="small" />
+                    Viết đánh giá
+                  </button>
+                </div>
               </div>
-              <div className="book-detail-review-action">
-                <button type="button" className="book-detail-review-btn">
-                  <BorderColorOutlinedIcon fontSize="small" />
-                  Viết đánh giá
-                </button>
-              </div>
-            </div>
+
+              {reviews && reviews.length > 0 && (
+                <div className="book-detail-review-list">
+                  <h3 className="book-detail-review-list-title">Khách hàng nhận xét</h3>
+                  {reviews.map((review) => (
+                    <div key={review.idReview} className="book-detail-review-item">
+                      <div className="book-detail-review-user-info">
+                        <img 
+                          src={review.user?.avatar || "https://via.placeholder.com/40?text=U"} 
+                          alt="avatar" 
+                          className="book-detail-review-avatar" 
+                        />
+                        <div className="book-detail-review-user-meta">
+                          <span className="book-detail-review-user-name">
+                            {review.user?.lastName} {review.user?.firstName}
+                          </span>
+                          <div className="book-detail-review-item-header">
+                            <Rating value={review.ratingPoint} readOnly size="small" />
+                            <span className="book-detail-review-date">
+                              {new Date(review.timestamp).toLocaleDateString("vi-VN", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="book-detail-review-content">{review.content}</p>
+                      <Divider className="book-detail-divider" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </section>
 
         {relatedBooks.length > 0 ? (
           <>
             <section className="book-detail-related">
-              <h2 className="book-detail-related-title">FAHASA giới thiệu</h2>
+              <h2 className="book-detail-related-title">Mộc Sách giới thiệu</h2>
               <div className="book-detail-related-grid">
                 {relatedBooks.slice(0, 5).map((item) => (
                   <FlashSaleItem key={item.idBook} book={item} />

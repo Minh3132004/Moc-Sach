@@ -189,6 +189,22 @@ public class BookServiceImp implements BookService {
         }
     }
 
+    // Lấy số lượng sách theo thể loại
+    @Override
+    public ResponseEntity<?> getBookCountByGenre(int idGenre) {
+        try {
+            if (!genreRepository.existsById(idGenre)) {
+                throw new NotFoundException("Không tìm thấy thể loại");
+            }
+            long total = bookRepository.countByListGenres_IdGenre(idGenre);
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy số lượng sách theo thể loại thành công", total));
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy số lượng sách theo thể loại thất bại", e);
+        }
+    }
+
     // Lấy sách giảm giá nhiều nhất (tiêu chí phụ bán nhiều nhất)
     @Override
     public ResponseEntity<?> getFlashSaleBook(int page, int size) {

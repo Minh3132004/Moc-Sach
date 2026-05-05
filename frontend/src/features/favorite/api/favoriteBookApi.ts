@@ -1,5 +1,6 @@
 import api from "../../../lib/http";
 
+/*
 //Lấy danh sách sách yêu thích của người dùng
 export async function getFavoriteBooksByUser(idUser: number | undefined) {
     const endpoint = `/favorite-book/get-favorite-book/${idUser}`;
@@ -34,3 +35,4 @@ export async function removeFavoriteBook(idUser: number, idBook: number) {
     
     return response;
 }
+*/

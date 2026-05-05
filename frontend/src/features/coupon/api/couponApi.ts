@@ -2,6 +2,7 @@ import { toast } from "react-toastify";
 import Coupon from "../model/Coupon";
 import api from "../../../lib/http";
 
+/*
 // Lấy danh sách coupon với phân trang
 export async function getCoupon(page: number = 0, size: number = 10): Promise<{ coupons: Coupon[], totalPages: number, totalElements: number, currentPage: number }> {
     try {
@@ -87,3 +88,4 @@ export async function updateUsedCoupon(code: string) {
         console.log("Xảy ra lỗi khi cập nhật mã giảm giá");
     }
 }
+*/

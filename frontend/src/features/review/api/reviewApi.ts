@@ -1,4 +1,5 @@
 import ReviewModel from "../model/ReviewModel";
+import UserModel from "../../user/model/UserModel";
 import api from "../../../lib/http";
 import { type ApiResponse, isApiSuccess } from "../../../lib/apiResponse";
 
@@ -11,12 +12,22 @@ async function getReview(endPoint: string): Promise<ReviewModel[]> {
 
     const responseData = response.data ?? [];
 
-    return responseData.map((review: ReviewModel) => {
+    return responseData.map((review: any) => {
+        let userModel: UserModel | undefined = undefined;
+        if (review.user) {
+            userModel = new UserModel();
+            userModel.idUser = review.user.idUser;
+            userModel.firstName = review.user.firstName;
+            userModel.lastName = review.user.lastName;
+            userModel.avatar = review.user.avatar;
+        }
+
         return new ReviewModel(
             review.idReview,
             review.content,
             review.ratingPoint,
-            review.timestamp
+            new Date(review.timestamp),
+            userModel
         );
     });
 }
@@ -27,6 +38,7 @@ export function getReviewByIdBook(idBook: number) : Promise<ReviewModel[]>  {
     return getReview(endPoint);
 }
 
+/*
 // Hàm lấy tổng số review
 export async function getTotalNumberOfReviews(): Promise<number> {
     try {
@@ -39,3 +51,4 @@ export async function getTotalNumberOfReviews(): Promise<number> {
         return 0;
     }
 }
+*/

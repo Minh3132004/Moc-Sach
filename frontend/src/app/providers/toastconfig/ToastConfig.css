@@ -1,0 +1,35 @@
+/* Custom Toastify Styles */
+:root {
+  --toastify-color-success: #00b894;
+  --toastify-color-error: #ff7675;
+  --toastify-color-warning: #fdcb6e;
+  --toastify-color-info: #74b9ff;
+  --toastify-toast-min-height: 50px;
+  --toastify-toast-max-width: 350px;
+}
+
+.Toastify__toast {
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.Toastify__toast--colored.Toastify__toast--success {
+  background: #00b894 !important;
+}
+
+.Toastify__toast--colored.Toastify__toast--error {
+  background: #ff7675 !important;
+}
+
+.Toastify__toast-body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.Toastify__close-button {
+  opacity: 0.8 !important;
+}

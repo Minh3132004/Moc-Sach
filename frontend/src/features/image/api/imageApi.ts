@@ -13,8 +13,7 @@ async function getImage(endpoint: string): Promise<ImageModel[]> {
             image.idImage,
             image.nameImage,
             image.isThumbnail,
-            image.urlImage,
-            image.dataImage
+            image.urlImage
         )
     );
 

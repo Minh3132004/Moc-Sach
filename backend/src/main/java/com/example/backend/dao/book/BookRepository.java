@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface BookRepository extends JpaRepository<Book, Integer>, JpaSpecificationExecutor<Book> {
     Page<Book> findByListGenres_IdGenre(int idGenre, Pageable pageable);
 
+    long countByListGenres_IdGenre(int idGenre);
+
     @Query("SELECT DISTINCT b FROM Book b LEFT JOIN FETCH b.listGenres WHERE b.idBook = :id")
     Optional<Book> findDetailById(@Param("id") int id);
 }

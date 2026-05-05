@@ -1,13 +1,12 @@
 import { toast } from "react-toastify";
-import { getIdUserByToken } from "../../auth/JwtService";
 import CartItemModel from "../model/CartItemModel";
 import { getBookByIdCartItem } from "../../book/api/bookApi";
 import api from "../../../lib/http";
 import { type ApiResponse, isApiSuccess } from "../../../lib/apiResponse";
 
+/*
 // Lấy giỏ hàng theo id user
-export async function getCartAllByIdUser(): Promise<CartItemModel[]> {
-   const idUser = Number(getIdUserByToken());
+export async function getCartAllByIdUser(idUser: number): Promise<CartItemModel[]> {
    const endpoint = `/users/${idUser}/listCartItems`;
    try {
       const response = await api.get(endpoint);
@@ -24,15 +23,14 @@ export async function getCartAllByIdUser(): Promise<CartItemModel[]> {
    }
    return [];
 }
+*/
 
 /** Thêm sách vào giỏ (cần đăng nhập — JWT). */
-export async function addCartItem(idBook: number, quantity: number): Promise<void> {
-   const idUserRaw = getIdUserByToken();
-   if (idUserRaw === undefined) {
+export async function addCartItem(idUser: number | undefined, idBook: number, quantity: number): Promise<void> {
+   if (idUser === undefined) {
       toast.error("Vui lòng đăng nhập để thêm vào giỏ hàng");
       throw new Error("Chưa đăng nhập");
    }
-   const idUser = Number(idUserRaw);
    const response = await api.post<any, ApiResponse<unknown>>("/cart-item/add-item", {
       idBook,
       quantity,
@@ -44,6 +42,7 @@ export async function addCartItem(idBook: number, quantity: number): Promise<voi
    toast.success("Đã thêm sản phẩm vào giỏ hàng");
 }
 
+/*
 // Cập nhật số lượng sản phẩm trong giỏ hàng
 export async function updateQuantityCartItem(cartItem: CartItemModel) {
    const endpoint = `/cart-item/update-quantity/${cartItem.idCart}`;
@@ -58,3 +57,4 @@ export async function updateQuantityCartItem(cartItem: CartItemModel) {
       console.error('Error: ', error);
    }
 }
+*/

@@ -1,6 +1,7 @@
 import OrderDetail from "../model/OrderDetail";
 import api from "../../../lib/http";
 
+/*
 // Lấy 1 đơn hàng chi tiết bởi mã đơn hàng
 export const get1OrderDetail = async (idOrder: number) => {
     const endpoint = `/orders/${idOrder}/listOrderDetails`;
@@ -19,3 +20,4 @@ export const get1OrderDetail = async (idOrder: number) => {
     
     return orderDetail;
 }
+*/

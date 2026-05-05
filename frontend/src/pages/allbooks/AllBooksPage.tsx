@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 import "./AllBooksPage.css";
@@ -20,6 +20,7 @@ const AllBooksPage: React.FC = () => {
   const [displayAuthor, setDisplayAuthor] = useState<string>("");
   const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>([]);
   const [priceRange, setPriceRange] = useState<{ min?: number; max?: number } | null>(null);
+  const [searchParams] = useSearchParams();
 
   const authorQuery = authorKeyword.trim();
 
@@ -56,6 +57,21 @@ const AllBooksPage: React.FC = () => {
 
     return () => clearTimeout(handler);
   }, [displayAuthor]);
+
+  useEffect(() => {
+    const genreParam = searchParams.get("genreIds");
+    if (!genreParam) return;
+
+    const parsedIds = genreParam
+      .split(",")
+      .map((id) => Number(id))
+      .filter((id) => Number.isFinite(id) && id > 0);
+
+    if (parsedIds.length > 0) {
+      setSelectedGenreIds(parsedIds);
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
 
   const toggleGenre = (genreId: number) => {
     setSelectedGenreIds((prev) =>
