@@ -1,11 +1,9 @@
 package com.example.backend.dao.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.example.backend.entity.user.User;
 
-@RepositoryRestResource(excerptProjection = User.class, path = "users")
 public interface UserRepository extends JpaRepository<User, Integer> {
     //Tìm kiếm user theo tên đăng nhập
     public boolean existsByUsername(String username);

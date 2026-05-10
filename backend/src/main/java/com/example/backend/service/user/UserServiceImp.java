@@ -7,6 +7,7 @@ import com.example.backend.dto.request.user.UserCreateRequest;
 import com.example.backend.dto.request.user.ChangePasswordRequest;
 import com.example.backend.dto.request.user.UpdateProfileRequest;
 import com.example.backend.dto.response.api.ApiResponse;
+import com.example.backend.dto.response.user.UserBasicResponse;
 import com.example.backend.exception.BadRequestException;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.InternalServerException;
@@ -52,6 +53,34 @@ public class UserServiceImp implements UserService {
 
     @Autowired
     private UploadImageService uploadImageService;
+
+    @Override
+    public ResponseEntity<?> getUserById(int userId) {
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
+
+            UserBasicResponse response = new UserBasicResponse(
+                    user.getIdUser(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getPhoneNumber(),
+                    user.getGender(),
+                    user.getDateOfBirth(),
+                    user.getDeliveryAddress(),
+                    user.getAvatar(),
+                    user.isEnabled()
+            );
+
+            return ResponseEntity.ok(ApiResponse.success("Lấy người dùng thành công", response));
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy người dùng thất bại", e);
+        }
+    }
 
     public ResponseEntity<?> register(UserCreateRequest userDTO) {
         try {

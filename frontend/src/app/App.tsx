@@ -8,6 +8,11 @@ import BestSellerPage from "../pages/bestseller/BestSellerPage";
 import FlashSalePage from "../pages/flashsale/FlashSalePage";
 import AllBooksPage from "../pages/allbooks/AllBooksPage";
 import BookDetailPage from "../pages/book/BookDetailPage";
+import AccountLayout from "../pages/account/AccountLayout";
+import AccountOverviewPage from "../pages/account/components/AccountOverviewPage";
+import AccountOrdersPage from "../pages/account/components/AccountOrdersPage";
+import AccountFavoritesPage from "../pages/account/components/AccountFavoritesPage";
+import AccountVouchersPage from "../pages/account/components/AccountVouchersPage";
 
 function App() {
   return (
@@ -20,6 +25,12 @@ function App() {
           <Route path="/best-sellers" element={<BestSellerPage />} />
           <Route path="/books" element={<AllBooksPage />} />
           <Route path="/books/:idBook" element={<BookDetailPage />} />
+          <Route element={<AccountLayout />}>
+            <Route path="/account" element={<AccountOverviewPage />} />
+            <Route path="/order/history" element={<AccountOrdersPage />} />
+            <Route path="/wishlist" element={<AccountFavoritesPage />} />
+            <Route path="/voucher" element={<AccountVouchersPage />} />
+          </Route>
           <Route path="/active/:email/:activationCode" element={<ActiveAccountPage />} />
         </Routes>
       </main>

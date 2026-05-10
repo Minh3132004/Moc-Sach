@@ -52,6 +52,11 @@ public class UserController {
         return userServiceImp.updateUserByAdmin(id, user);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable @Positive(message = "id phải lớn hơn 0") int id) {
+        return userServiceImp.getUserById(id);
+    }
+
     @GetMapping("/active-account")
     public ResponseEntity<?> activeAccount(@RequestParam @NotBlank(message = "Email không được để trống") String email,
             @RequestParam @NotBlank(message = "Mã kích hoạt không được để trống") String activationCode) {

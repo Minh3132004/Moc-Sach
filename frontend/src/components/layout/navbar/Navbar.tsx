@@ -46,6 +46,14 @@ function Navbar() {
     setShowAccountMenu(false);
   };
 
+  const closeAccountMenu = () => {
+    setShowAccountMenu(false);
+    if (closeAccountMenuTimeoutRef.current !== null) {
+      window.clearTimeout(closeAccountMenuTimeoutRef.current);
+      closeAccountMenuTimeoutRef.current = null;
+    }
+  };
+
   return (
     <>
       <TopBanner />
@@ -104,19 +112,43 @@ function Navbar() {
                 <div className="account-dropdown">
                   {user ? (
                     <>
-                      <button className="account-dropdown-btn" type="button">
+                      <Link
+                        to="/account"
+                        className="account-dropdown-btn"
+                        style={{ textDecoration: "none" }}
+                        onClick={closeAccountMenu}
+                      >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         Tài khoản của tôi
-                      </button>
-                      <button className="account-dropdown-btn" type="button">
+                      </Link>
+                      <Link
+                        to="/order/history"
+                        className="account-dropdown-btn"
+                        style={{ textDecoration: "none" }}
+                        onClick={closeAccountMenu}
+                      >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                         Đơn hàng của tôi
-                      </button>
-                      <button className="account-dropdown-btn" type="button">
+                      </Link>
+                      <Link
+                        to="/wishlist"
+                        className="account-dropdown-btn"
+                        style={{ textDecoration: "none" }}
+                        onClick={closeAccountMenu}
+                      >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                         Sản phẩm yêu thích
-                      </button>
-                      <button className="account-dropdown-btn" type="button" onClick={logout}>
+                      </Link>
+                      <Link
+                        to="/voucher"
+                        className="account-dropdown-btn"
+                        style={{ textDecoration: "none" }}
+                        onClick={closeAccountMenu}
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10a2 2 0 0 1 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M13 6v12"></path></svg>
+                        Mã giảm giá
+                      </Link>
+                      <button className="account-dropdown-btn"  type="button" onClick={logout}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                         Thoát tài khoản
                       </button>

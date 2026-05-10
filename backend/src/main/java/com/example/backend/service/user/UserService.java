@@ -12,6 +12,7 @@ public interface UserService {
     public ResponseEntity<?> register(UserCreateRequest userDTO);
     public ResponseEntity<?> addUserByAdmin(UserCreateRequest userDTO);
     public ResponseEntity<?> updateUserByAdmin(int userId, User updateData);
+    public ResponseEntity<?> getUserById(int userId);
     public ResponseEntity<?> authenticate(LoginRequest loginRequest);
     public ResponseEntity<?> forgotPassword(String email);
     public ResponseEntity<?> updateProfile(UpdateProfileRequest updateProfileDTO);
