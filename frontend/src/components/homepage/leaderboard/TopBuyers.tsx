@@ -1,7 +1,7 @@
 import React from "react";
 import "./TopBuyers.css";
 import { useTopBuyers } from "../../../features/order/hooks/useTopBuyers";
-import leaderboardBanner from "../../../assets/banners/thiet-ke-bang-xep-hang.jpg";
+import leaderboardBanner from "../../../assets/banners/thiet-ke-bang-xep-hang-4.png";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import StarIcon from '@mui/icons-material/Star';
 

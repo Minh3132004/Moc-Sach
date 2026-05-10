@@ -32,7 +32,7 @@ public class UpdateProfileRequest {
     @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
     private String deliveryAddress;
 
-    @Pattern(regexp = "^(?i)(male|female|m|f)?$", message = "Giới tính chỉ chấp nhận male, female, m hoặc f")
+    @Pattern(regexp = "^(?i)(male|female|m|f|o)?$", message = "Giới tính chỉ chấp nhận nam, nữ hoặc khác")
     private String gender;
 
     @Past(message = "Ngày sinh phải là ngày trong quá khứ")

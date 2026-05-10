@@ -4,9 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import Rating from "@mui/material/Rating";
 import Divider from "@mui/material/Divider";
+import { toast } from "react-toastify";
 
 import FlashSaleItem from "../../components/homepage/flashsale/FlashSaleItem";
 import { getHotBook } from "../../features/book/api/bookApi";
@@ -55,6 +58,7 @@ const BookDetailPage: React.FC = () => {
 
   const [activeImageIndex, setActiveImageIndex] = useState(0); // Ảnh đang được chọn hiển thị
   const [quantity, setQuantity] = useState(1); // Số lượng người dùng muốn mua
+  const [isFavorite, setIsFavorite] = useState(false); // Trạng thái yêu thích
 
   // Reset lại trạng thái trang khi người dùng chuyển sang xem sách khác
   useEffect(() => {
@@ -151,6 +155,18 @@ const BookDetailPage: React.FC = () => {
     addMutation.mutate({ idUser, idBook: book!.idBook, quantity });
   };
 
+  /**
+   * Xử lý bật/tắt yêu thích sách.
+   */
+  const handleToggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    if (!isFavorite) {
+      toast.info("Đã thêm vào danh sách yêu thích!");
+    } else {
+      toast.info("Đã xóa khỏi danh sách yêu thích!");
+    }
+  };
+
   return (
     <div className="book-detail-page">
       <div className="container">
@@ -175,7 +191,17 @@ const BookDetailPage: React.FC = () => {
                 {imagesLoading ? (
                   <div className="book-detail-image-skeleton" />
                 ) : (
-                  <img src={imageUrl(mainImage)} alt={book.nameBook ?? ""} className="book-detail-main-image" />
+                  <>
+                    <img src={imageUrl(mainImage)} alt={book.nameBook ?? ""} className="book-detail-main-image" />
+                    <button
+                      type="button"
+                      className={`book-detail-floating-favorite ${isFavorite ? "is-favorite" : ""}`}
+                      onClick={handleToggleFavorite}
+                      title={isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                    >
+                      {isFavorite ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
+                    </button>
+                  </>
                 )}
               </div>
 

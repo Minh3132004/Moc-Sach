@@ -1,5 +1,6 @@
 import "./Navbar.css";
 import TopBanner from "./TopBanner";
+import BrandLogo from "./BrandLogo";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthModal } from "../../auth";
@@ -59,7 +60,7 @@ function Navbar() {
       <TopBanner />
       <header className="main-header">
         <div className="nav-row">
-          <div className="brand">Mộc Sách</div>
+          <BrandLogo />
 
           <Link to="/books" className="nav-item" aria-label="Danh sách sách" style={{ textDecoration: 'none' }}>
             <svg viewBox="0 0 24 24" aria-hidden="true">

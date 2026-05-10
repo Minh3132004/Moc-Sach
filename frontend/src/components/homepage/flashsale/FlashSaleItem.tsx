@@ -2,8 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './FlashSale.css';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import LocalMallIcon from '@mui/icons-material/LocalMall';
 import { useImagesByBook } from '../../../features/image/hooks';
 import BookModel from '../../../features/book/model/BookModel';
+import { toast } from 'react-toastify';
 
 interface FlashSaleItemProps {
     book: BookModel;
@@ -29,11 +32,26 @@ const FlashSaleItem: React.FC<FlashSaleItemProps> = ({ book }) => {
         statusText = "Sắp cháy hàng";
     }
 
+    const handleAddToWishlist = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toast.info(`Đã thêm "${book.nameBook}" vào danh sách yêu thích!`);
+    };
+
+    const handleBuyNow = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toast.success(`Đã thêm "${book.nameBook}" vào giỏ hàng!`);
+    };
+
     return (
         <Link to={`/books/${book.idBook}`} className="flash-sale-item-link">
             <div className="flash-sale-item">
                 <div className="item-image-wrapper">
                     <img src={imageUrl} alt={book.nameBook} className="item-image" />
+                    <button className="wishlist-btn" onClick={handleAddToWishlist} title="Yêu thích">
+                        <FavoriteIcon sx={{ fontSize: 18 }} />
+                    </button>
                 </div>
                 <div className="item-title">{book.nameBook}</div>
                 <div className="item-price-row">
@@ -53,11 +71,20 @@ const FlashSaleItem: React.FC<FlashSaleItemProps> = ({ book }) => {
                     ></div>
                     <div className="sold-text">
                         {isAlmostOut || isSoldOut ? (
-                            <LocalFireDepartmentIcon className="fire-icon" style={{ fontSize: '14px', color: '#fff' }} />
+                            <LocalFireDepartmentIcon className="fire-icon" style={{ fontSize: '14px', color: '#1f2937' }} />
                         ) : null}
                         {statusText}
                     </div>
                 </div>
+
+                <button 
+                    className={`buy-now-btn ${isSoldOut ? 'disabled' : ''}`} 
+                    onClick={handleBuyNow}
+                    disabled={isSoldOut}
+                >
+                    <LocalMallIcon sx={{ fontSize: 16 }} />
+                    {isSoldOut ? "Hết hàng" : "Mua ngay"}
+                </button>
             </div>
         </Link>
     );
