@@ -19,6 +19,9 @@ import { useImagesByBook } from "../../features/image/hooks";
 import { useReviewsByBook } from "../../features/review/hooks";
 import { useAddCartItem } from "../../features/cart/hooks";
 import { useAuth } from "../../app/providers/AuthProvider";
+import { useFavoriteBooksByUser } from "../../features/favorite/hooks/useFavoriteBooksByUser";
+import { useAddFavoriteBook } from "../../features/favorite/hooks/useAddFavoriteBook";
+import { useRemoveFavoriteBook } from "../../features/favorite/hooks/useRemoveFavoriteBook";
 import ImageModel from "../../features/image/model/ImageModel";
 import "./BookDetailPage.css";
 
@@ -58,7 +61,13 @@ const BookDetailPage: React.FC = () => {
 
   const [activeImageIndex, setActiveImageIndex] = useState(0); // Ảnh đang được chọn hiển thị
   const [quantity, setQuantity] = useState(1); // Số lượng người dùng muốn mua
-  const [isFavorite, setIsFavorite] = useState(false); // Trạng thái yêu thích
+
+  // Lấy danh sách sách yêu thích & hook thêm/xóa
+  const { data: favoriteBooks } = useFavoriteBooksByUser(idUser);
+  const isFavorite = favoriteBooks?.some(fb => fb.idBook === idBook) ?? false;
+  const { mutate: addFavorite, isPending: isAdding } = useAddFavoriteBook();
+  const { mutate: removeFavorite, isPending: isRemoving } = useRemoveFavoriteBook();
+  const isFavoritePending = isAdding || isRemoving;
 
   // Reset lại trạng thái trang khi người dùng chuyển sang xem sách khác
   useEffect(() => {
@@ -159,11 +168,28 @@ const BookDetailPage: React.FC = () => {
    * Xử lý bật/tắt yêu thích sách.
    */
   const handleToggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    if (!isFavorite) {
-      toast.info("Đã thêm vào danh sách yêu thích!");
+    if (!idUser) {
+      toast.warning("Vui lòng đăng nhập để sử dụng tính năng yêu thích!");
+      return;
+    }
+    if (isFavoritePending) return;
+
+    if (isFavorite) {
+      removeFavorite(
+        { idUser, idBook: book!.idBook },
+        {
+          onSuccess: () => toast.success(`Đã xóa "${book!.nameBook}" khỏi danh sách yêu thích!`),
+          onError: (err: any) => toast.error(err?.message || "Không thể xóa khỏi yêu thích!"),
+        }
+      );
     } else {
-      toast.info("Đã xóa khỏi danh sách yêu thích!");
+      addFavorite(
+        { idUser, idBook: book!.idBook },
+        {
+          onSuccess: () => toast.success(`Đã thêm "${book!.nameBook}" vào danh sách yêu thích!`),
+          onError: (err: any) => toast.error(err?.message || "Không thể thêm vào yêu thích!"),
+        }
+      );
     }
   };
 
@@ -198,6 +224,7 @@ const BookDetailPage: React.FC = () => {
                       className={`book-detail-floating-favorite ${isFavorite ? "is-favorite" : ""}`}
                       onClick={handleToggleFavorite}
                       title={isFavorite ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+                      disabled={isFavoritePending}
                     >
                       {isFavorite ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
                     </button>
