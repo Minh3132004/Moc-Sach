@@ -117,6 +117,20 @@ public class CartServiceImp implements CartService {
         }
     }
 
+    @Override
+    public ResponseEntity<?> delete(int idCart) {
+        Optional<CartItem> cartItem = cartItemRepository.findById(idCart);
+        if (cartItem.isPresent()) {
+            try {
+                cartItemRepository.delete(cartItem.get());
+                return ResponseEntity.ok(ApiResponse.success("Đã xóa sản phẩm khỏi giỏ hàng", null));
+            } catch (Exception e) {
+                throw new InternalServerException("Xóa sản phẩm khỏi giỏ hàng thất bại", e);
+            }
+        }
+        throw new NotFoundException("Không tìm thấy sản phẩm trong giỏ hàng");
+    }
+
     private CartItemResponse mapToCartItemResponse(CartItem cartItem) {
         return new CartItemResponse(
                 cartItem.getBook().getIdBook(),

@@ -53,6 +53,13 @@
   gap: 12px;
 }
 
+.auth-form-description {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
 .auth-input-wrapper {
   position: relative;
   display: flex;

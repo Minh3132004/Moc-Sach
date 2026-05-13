@@ -5,6 +5,7 @@ import { useUpdateProfile } from "../../../../features/user/hooks/useUpdateProfi
 import { toast } from "react-toastify";
 import LoginPrompt from "../../../../components/auth/LoginPrompt";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import { AvatarUpload } from "./AvatarUpload";
 
 function AccountOverviewPage() {
   const { user } = useAuth();
@@ -24,15 +25,6 @@ function AccountOverviewPage() {
 
   const profile = data?.data;
 
-  if (!user?.id) {
-    return (
-      <LoginPrompt 
-        title="Yêu cầu đăng nhập"
-        message="Vui lòng đăng nhập để xem và chỉnh sửa thông tin cá nhân của bạn."
-        icon={<AccountCircleOutlinedIcon style={{ fontSize: 64 }} />}
-      />
-    );
-  }
 
   // Cập nhật formData khi có dữ liệu profile từ API
   useEffect(() => {
@@ -72,6 +64,17 @@ function AccountOverviewPage() {
     }
   };
 
+  // 👇 CHUYỂN CHECK RETURN SỚM XUỐNG ĐÂY
+  if (!user?.id) {
+    return (
+      <LoginPrompt 
+        title="Yêu cầu đăng nhập"
+        message="Vui lòng đăng nhập để xem và chỉnh sửa thông tin cá nhân của bạn."
+        icon={<AccountCircleOutlinedIcon style={{ fontSize: 64 }} />}
+      />
+    );
+  }
+
   // Helper để lấy màu trạng thái
   const getStatusColor = (enabled: boolean) => (enabled ? "#10b981" : "#f59e0b");
 
@@ -79,31 +82,12 @@ function AccountOverviewPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
       {/* 1. Header Profile: Avatar & Tên */}
       <div style={{ display: "flex", alignItems: "center", gap: 24, paddingBottom: 24, borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
-        <div style={{ 
-          width: 100, 
-          height: 100, 
-          borderRadius: "50%", 
-          background: profile?.avatar ? "transparent" : "linear-gradient(135deg, #2a8190 0%, #4facfe 100%)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 40,
-          fontWeight: 800,
-          color: "#fff",
-          boxShadow: "0 10px 20px rgba(42, 129, 144, 0.2)",
-          overflow: "hidden",
-          border: profile?.avatar ? "2px solid #fff" : "none"
-        }}>
-          {profile?.avatar ? (
-            <img 
-              src={profile.avatar} 
-              alt={fullName} 
-              style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-            />
-          ) : (
-            profile?.firstName?.charAt(0).toUpperCase() || "U"
-          )}
-        </div>
+        <AvatarUpload 
+          userId={user.id} 
+          currentAvatar={profile?.avatar} 
+          fullName={fullName} 
+          firstName={profile?.firstName}
+        />
         <div>
           <h2 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#111827" }}>
             {fullName || "Người dùng mới"}

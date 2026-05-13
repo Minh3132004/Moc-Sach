@@ -34,7 +34,6 @@ const CartPage: React.FC = () => {
 
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
-  const [showDiscountModal, setShowDiscountModal] = useState(false);
 
   // Tự động chọn tất cả và khởi tạo số lượng khi load xong giỏ hàng
   useEffect(() => {
@@ -43,7 +42,7 @@ const CartPage: React.FC = () => {
         .map(item => item.idCart)
         .filter((id): id is number => typeof id === "number");
       setSelectedItems(selected);
-      
+
       const initialQuantities: Record<number, number> = {};
       cartItems.forEach(item => {
         if (typeof item.idCart === "number") {
@@ -58,10 +57,10 @@ const CartPage: React.FC = () => {
   const handleQuantityChange = async (idCart: number, delta: number, maxQty: number) => {
     const item = cartItems?.find(i => i.idCart === idCart);
     if (!item || !item.book || !idUser) return;
-    
+
     const current = quantities[idCart] || item.quantity || 1;
     const newQty = Math.max(1, Math.min(maxQty, current + delta));
-    
+
     // Optimistic UI update (cập nhật giao diện ngay lập tức)
     setQuantities((prev) => ({ ...prev, [idCart]: newQty }));
 
@@ -122,7 +121,7 @@ const CartPage: React.FC = () => {
     return (
       <div className="cart-page">
         <div className="container">
-          <LoginPrompt 
+          <LoginPrompt
             title="Vui lòng đăng nhập để xem giỏ hàng"
             message="Bạn cần đăng nhập để thêm sản phẩm và tiến hành thanh toán."
             icon={<ShoppingCartIcon style={{ fontSize: 56 }} />}
@@ -184,14 +183,14 @@ const CartPage: React.FC = () => {
       <div className="container">
         <h1 className="cart-title">GIỎ HÀNG ({cartItems.length} sản phẩm)</h1>
         <div className="cart-content">
-          
+
           {/* Cột trái: Danh sách sản phẩm */}
           <div className="cart-items-container">
             {/* Header giỏ hàng */}
             <div className="cart-items-header">
               <label className="checkbox-container">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={isAllSelected}
                   onChange={handleSelectAll}
                 />
@@ -218,18 +217,18 @@ const CartPage: React.FC = () => {
                 return (
                   <div key={item.idCart} className="cart-item">
                     <label className="checkbox-container">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={isSelected}
                         onChange={(e) => handleSelectItem(item.idCart!, e.target.checked)}
                       />
                       <span className="checkmark"></span>
                     </label>
-                    
+
                     <div className="cart-item-image">
                       <img src={imageUrl(image)} alt={book?.nameBook || "Sách"} />
                     </div>
-                    
+
                     <div className="cart-item-info">
                       <Link to={`/books/${book?.idBook}`} className="cart-item-name">
                         {book?.nameBook}
@@ -245,7 +244,7 @@ const CartPage: React.FC = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="cart-item-quantity">
                       <button
                         className="qty-btn"
@@ -263,11 +262,11 @@ const CartPage: React.FC = () => {
                         <AddIcon fontSize="small" />
                       </button>
                     </div>
-                    
+
                     <div className="cart-item-total">
                       {itemTotal.toLocaleString("vi-VN")} đ
                     </div>
-                    
+
                     <button
                       className="cart-item-remove"
                       onClick={() => handleRemoveItem(item.idCart!)}
@@ -283,7 +282,7 @@ const CartPage: React.FC = () => {
 
           {/* Cột phải: Khuyến mãi & Tổng kết */}
           <div className="cart-sidebar">
-            
+
             {/* Block Khuyến mãi */}
             <div className="cart-sidebar-block promo-block">
               <div className="promo-header">
@@ -304,7 +303,7 @@ const CartPage: React.FC = () => {
                 </div>
                 <button className="promo-ticket-btn">Mua thêm</button>
               </div>
-              <div className="promo-hint">Hướng dẫn sử dụng Gift Card <ErrorOutlineIcon fontSize="small" style={{ marginLeft: 4 }}/></div>
+              <div className="promo-hint">Hướng dẫn sử dụng Gift Card <ErrorOutlineIcon fontSize="small" style={{ marginLeft: 4 }} /></div>
             </div>
 
             {/* Block Nhận quà */}
@@ -332,9 +331,9 @@ const CartPage: React.FC = () => {
                 <span><strong>Tổng Số Tiền (gồm VAT)</strong></span>
                 <span className="summary-final-total">{totalPrice.toLocaleString("vi-VN")} đ</span>
               </div>
-              
-              <button 
-                className="checkout-btn" 
+
+              <button
+                className="checkout-btn"
                 onClick={() => navigate('/checkout')}
                 disabled={selectedItems.length === 0}
               >

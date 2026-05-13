@@ -9,6 +9,7 @@ type LoginFormProps = {
   onChangePassword: (value: string) => void;
   onSubmit: () => void;
   onSkip: () => void;
+  onForgotPassword: () => void;
 };
 
 function LoginForm({
@@ -20,6 +21,7 @@ function LoginForm({
   onChangePassword,
   onSubmit,
   onSkip,
+  onForgotPassword,
 }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -29,7 +31,7 @@ function LoginForm({
   };
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit}>
+    <form className="auth-form" onSubmit={handleSubmit} noValidate>
       <label className="auth-field">
         <span className="auth-label">Tên đăng nhập</span>
         <input
@@ -79,6 +81,7 @@ function LoginForm({
           href="#"
           onClick={(e) => {
             e.preventDefault();
+            onForgotPassword();
           }}
         >
           Quên mật khẩu?

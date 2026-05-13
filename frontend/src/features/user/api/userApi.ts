@@ -96,3 +96,39 @@ export async function changePassword(payload: ChangePasswordRequest): Promise<Ap
      
      return response;
  }
+ 
+ // Hàm quên mật khẩu
+ export async function forgotPassword(email: string): Promise<ApiResponse<null>> {
+     const endpoint = `/user/forgot-password`;
+     const response = await api.put<any, ApiResponse<null>>(endpoint, { email });
+ 
+     if (!isApiSuccess(response)) {
+         throw new Error(response.message || "Gửi yêu cầu quên mật khẩu thất bại");
+     }
+ 
+     return response;
+ }
+ 
+ // Hàm lấy signature upload Cloudinary
+ export async function getCloudinarySignature(folder?: string): Promise<ApiResponse<any>> {
+    const endpoint = `/api/cloudinary/signature${folder ? `?folder=${folder}` : ""}`;
+    const response = await api.get<any, ApiResponse<any>>(endpoint);
+    
+    if (!isApiSuccess(response)) {
+        throw new Error(response.message || "Lấy signature Cloudinary thất bại");
+    }
+    
+    return response;
+ }
+ 
+ // Hàm đổi avatar
+ export async function changeAvatar(idUser: number, avatarUrl: string): Promise<ApiResponse<JwtResponse>> {
+    const endpoint = `/user/change-avatar`;
+    const response = await api.put<any, ApiResponse<JwtResponse>>(endpoint, { idUser, avatarUrl });
+    
+    if (!isApiSuccess(response)) {
+        throw new Error(response.message || "Cập nhật ảnh đại diện thất bại");
+    }
+    
+    return response;
+ }

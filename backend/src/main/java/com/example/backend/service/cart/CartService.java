@@ -12,4 +12,7 @@ public interface CartService {
 
     // Lấy danh sách sản phẩm trong giỏ hàng theo id người dùng
     public ResponseEntity<?> getCartItemsByUserId(int idUser);
+
+    // Xóa sản phẩm khỏi giỏ hàng
+    public ResponseEntity<?> delete(int idCart);
 }

@@ -338,7 +338,7 @@ public class UserServiceImp implements UserService {
             // Gửi email để nhận mật khẩu
             sendEmailForgotPassword(user.getEmail(), passwordTemp);
 
-            return ResponseEntity.ok(ApiResponse.success("Đã gửi mật khẩu tạm thời qua email", null));
+            return ResponseEntity.ok(ApiResponse.success("Đã gửi mật khẩu mới qua email", null));
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -349,7 +349,7 @@ public class UserServiceImp implements UserService {
     //Gửi email quên mật khẩu 
     private void sendEmailForgotPassword(String email, String password) {
         String subject = "Reset mật khẩu";
-        String message = "Mật khẩu tạm thời của bạn là: <strong>" + password + "</strong>";
+        String message = "Mật khẩu mới của bạn là: <strong>" + password + "</strong>";
         message += "<br/> <span>Vui lòng đăng nhập và đổi lại mật khẩu của bạn</span>";
         emailService.sendMessage("de180352vubinhminh@gmail.com", email, subject, message);
     }
@@ -392,7 +392,9 @@ public class UserServiceImp implements UserService {
             // Lưu thay đổi vào database
             userRepository.save(user);
 
-            return ResponseEntity.ok(ApiResponse.success("Cập nhật thông tin thành công", null));
+            // Tạo token mới chứa thông tin đã cập nhật và trả về
+            final String jwtToken = jwtService.generateToken(user.getUsername());
+            return ResponseEntity.ok(ApiResponse.success("Cập nhật thông tin thành công", new JwtResponse(jwtToken)));
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {

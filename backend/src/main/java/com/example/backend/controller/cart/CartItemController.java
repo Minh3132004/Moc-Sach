@@ -35,4 +35,10 @@ public class CartItemController {
     public ResponseEntity<?> getCartItemsByUserId(@PathVariable @Positive(message = "idUser phải lớn hơn 0") int idUser) {
         return cartService.getCartItemsByUserId(idUser);
     }
+
+    // Xóa sản phẩm khỏi giỏ hàng
+    @DeleteMapping("/delete/{idCart}")
+    public ResponseEntity<?> delete(@PathVariable @Positive(message = "idCart phải lớn hơn 0") int idCart) {
+        return cartService.delete(idCart);
+    }
 }

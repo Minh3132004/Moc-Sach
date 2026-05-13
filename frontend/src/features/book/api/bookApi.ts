@@ -33,7 +33,7 @@ function mapToBookModel(book: any): BookModel {
 // Tạo phương thức lấy sách 
 async function getBook(endpoint: string): Promise<BookListResult> {
    const response = await api.get<any, ApiResponse<any>>(endpoint);
-   
+
    if (!isApiSuccess(response)) {
       throw new Error(response.message || "Lỗi lấy danh sách sách");
    }
@@ -124,26 +124,13 @@ export async function filterBooks(
 export async function getBookById(idBook: number): Promise<BookModel> {
    const endpoint: string = `/books/detail/${idBook}`;
    const response = await api.get<any, ApiResponse<any>>(endpoint);
-   
+
    if (!isApiSuccess(response)) {
       throw new Error(response.message || "Không tìm thấy sách");
    }
-   
+
    const payload = response.data;
    return mapToBookModel(payload);
-}
-
-// Tạo phương thức lấy sách theo mã sách trong giỏ hàng
-export async function getBookByIdCartItem(idCart: number): Promise<BookModel | null> {
-   const endpoint = `/cart-items/${idCart}/book`;
-   try {
-      const response = await api.get<any, ApiResponse<any>>(endpoint);
-      if (!isApiSuccess(response)) return null;
-      return response.data ? mapToBookModel(response.data) : null;
-   } catch (error) {
-      console.error('Error: ', error);
-      return null;
-   }
 }
 
 /*

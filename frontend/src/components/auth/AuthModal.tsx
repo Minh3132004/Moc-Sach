@@ -1,10 +1,11 @@
 import "./AuthModal.css";
 import { useEffect, useId, useState } from "react";
 import type { AuthModalProps, AuthTab } from "./types";
-import { LoginForm, RegisterForm } from "./components";
-import { useRegisterForm, useLoginForm } from "./hooks";
+import { LoginForm, RegisterForm, ForgotPasswordForm } from "./components";
+import { useRegisterForm, useLoginForm, useForgotPasswordForm } from "./hooks";
 import { useRegisterUser } from "../../features/user/hooks/useRegisterUser";
 import { useLoginUser } from "../../features/user/hooks/useLoginUser";
+import { forgotPassword } from "../../features/user/api/userApi";
 import { useAuth } from "../../app/providers/AuthProvider";
 
 function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
@@ -13,11 +14,13 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
 
   const loginForm = useLoginForm();
   const registerForm = useRegisterForm();
+  const forgotPasswordForm = useForgotPasswordForm();
 
   const registerMutation = useRegisterUser();
   const loginMutation = useLoginUser();
   const { login } = useAuth();
   const [registerStatus, setRegisterStatus] = useState<"idle" | "success" | "error">("idle");
+  const [isForgotLoading, setIsForgotLoading] = useState(false);
 
   const idBase = useId();
 
@@ -108,6 +111,31 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
     }
   };
 
+  const handleSubmitForgotPassword = async () => {
+    forgotPasswordForm.markAllTouched();
+    if (!forgotPasswordForm.canSubmit) return;
+
+    setRegisterMessage("");
+    setRegisterStatus("idle");
+    setIsForgotLoading(true);
+    try {
+      const result = await forgotPassword(forgotPasswordForm.email);
+      setRegisterMessage(result.message || "Mật khẩu tạm thời đã được gửi về email của bạn.");
+      setRegisterStatus("success");
+      
+      // Sau 3s quay lại màn hình đăng nhập
+      setTimeout(() => {
+        setTab("login");
+        forgotPasswordForm.reset();
+      }, 3000);
+    } catch (e: any) {
+      setRegisterMessage(e?.message || "Gửi yêu cầu thất bại. Vui lòng thử lại.");
+      setRegisterStatus("error");
+    } finally {
+      setIsForgotLoading(false);
+    }
+  };
+
   return (
     <div className="auth-modal-overlay" role="presentation" onMouseDown={onClose}>
       <div
@@ -136,7 +164,11 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
             className={tab === "register" ? "auth-tab active" : "auth-tab"}
             role="tab"
             aria-selected={tab === "register"}
-            onClick={() => setTab("register")}
+            onClick={() => {
+              setTab("register");
+              setRegisterMessage("");
+              setRegisterStatus("idle");
+            }}
           >
             Đăng ký
           </button>
@@ -167,8 +199,13 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
             onChangePassword={loginForm.setPassword}
             onSubmit={handleSubmitLogin}
             onSkip={onClose}
+            onForgotPassword={() => {
+              setTab("forgot-password");
+              setRegisterMessage("");
+              setRegisterStatus("idle");
+            }}
           />
-        ) : (
+        ) : tab === "register" ? (
           <RegisterForm
             lastName={registerForm.lastName}
             lastNameError={registerForm.lastNameError}
@@ -193,6 +230,19 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
             onChangePasswordConfirm={registerForm.setPasswordConfirm}
             onSubmit={handleSubmitRegister}
             onSkip={onClose}
+          />
+        ) : (
+          <ForgotPasswordForm
+            email={forgotPasswordForm.email}
+            emailError={forgotPasswordForm.emailError}
+            loading={isForgotLoading}
+            onChangeEmail={forgotPasswordForm.setEmail}
+            onSubmit={handleSubmitForgotPassword}
+            onBack={() => {
+              setTab("login");
+              setRegisterMessage("");
+              setRegisterStatus("idle");
+            }}
           />
         )}
       </div>

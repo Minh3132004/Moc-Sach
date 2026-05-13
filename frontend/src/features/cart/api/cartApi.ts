@@ -79,7 +79,7 @@ export async function updateCartItemQuantity(idCart: number, quantity: number, i
 
 /** Xóa sản phẩm khỏi giỏ hàng */
 export async function removeCartItem(idCart: number): Promise<void> {
-   const response = await api.delete<any, ApiResponse<unknown>>(`/cart-items/${idCart}`);
+   const response = await api.delete<any, ApiResponse<unknown>>(`/cart-item/delete/${idCart}`);
    if (!isApiSuccess(response)) {
       throw new Error(response.message || "Không thể xóa sản phẩm khỏi giỏ hàng");
    }
