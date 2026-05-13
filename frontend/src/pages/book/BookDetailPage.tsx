@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import BoltOutlinedIcon from "@mui/icons-material/BoltOutlined";
@@ -12,8 +11,7 @@ import Divider from "@mui/material/Divider";
 import { toast } from "react-toastify";
 
 import FlashSaleItem from "../../components/homepage/flashsale/FlashSaleItem";
-import { getHotBook } from "../../features/book/api/bookApi";
-import { useBookById } from "../../features/book/hooks";
+import { useBookById, useHotBooks } from "../../features/book/hooks";
 import { useHotBooksByGenre } from "../../features/book/hooks/useHotBooksByGenre";
 import { useImagesByBook } from "../../features/image/hooks";
 import { useReviewsByBook } from "../../features/review/hooks";
@@ -57,13 +55,13 @@ const BookDetailPage: React.FC = () => {
   // FETCH DỮ LIỆU: Gọi API lấy thông tin sách, hình ảnh và đánh giá
   const { data: book, isLoading, isError, error } = useBookById(invalidId ? undefined : idBook);
   const { data: images, isLoading: imagesLoading } = useImagesByBook(invalidId ? undefined : idBook);
-  const { data: reviews, isLoading: reviewsLoading } = useReviewsByBook(invalidId ? undefined : idBook);
+  const { data: reviews, isLoading: reviewsLoading, isError: reviewsError, error: reviewsErrorObj } = useReviewsByBook(invalidId ? undefined : idBook);
 
   const [activeImageIndex, setActiveImageIndex] = useState(0); // Ảnh đang được chọn hiển thị
   const [quantity, setQuantity] = useState(1); // Số lượng người dùng muốn mua
 
   // Lấy danh sách sách yêu thích & hook thêm/xóa
-  const { data: favoriteBooks } = useFavoriteBooksByUser(idUser);
+  const { data: favoriteBooks, isError: favoriteBooksError, error: favoriteBooksErrorObj } = useFavoriteBooksByUser(idUser);
   const isFavorite = favoriteBooks?.some(fb => fb.idBook === idBook) ?? false;
   const { mutate: addFavorite, isPending: isAdding } = useAddFavoriteBook();
   const { mutate: removeFavorite, isPending: isRemoving } = useRemoveFavoriteBook();
@@ -93,12 +91,8 @@ const BookDetailPage: React.FC = () => {
 
   // XỬ LÝ SÁCH LIÊN QUAN: Tìm các sách cùng thể loại hoặc sách đang hot
   const firstGenreId = book?.genres?.[0]?.idGenre ?? null;
-  const { data: relatedByGenre } = useHotBooksByGenre(firstGenreId, 10, 0);
-  const { data: relatedHot } = useQuery({
-    queryKey: ["books", "hot", 10, 0],
-    queryFn: () => getHotBook(10, 0),
-    enabled: Boolean(book) && firstGenreId === null,
-  });
+  const { data: relatedByGenre, isError: relatedByGenreError, error: relatedByGenreErrorObj } = useHotBooksByGenre(firstGenreId, 10, 0);
+  const { data: relatedHot, isError: relatedHotError, error: relatedHotErrorObj } = useHotBooks(10, 0, Boolean(book) && firstGenreId === null);
 
   // Lọc bỏ cuốn sách hiện tại ra khỏi danh sách sách liên quan
   const relatedBooks = useMemo(() => {
@@ -138,6 +132,13 @@ const BookDetailPage: React.FC = () => {
 
   const soldOut = (book.quantity ?? 0) <= 0;
   const reviewCount = reviews?.length ?? 0;
+  const relatedErrorMessage = firstGenreId !== null
+    ? (relatedByGenreErrorObj instanceof Error ? relatedByGenreErrorObj.message : "Không thể tải danh sách sách cùng thể loại.")
+    : (relatedHotErrorObj instanceof Error ? relatedHotErrorObj.message : "Không thể tải danh sách sách hot.");
+  const showRelatedError = firstGenreId !== null ? relatedByGenreError : relatedHotError;
+  const favoriteBooksErrorMessage = favoriteBooksErrorObj instanceof Error
+    ? favoriteBooksErrorObj.message
+    : "Không thể tải danh sách yêu thích.";
   const detailItems: Array<{ label: string; value: string }> = [
     { label: "Tác giả", value: book.author ?? "Đang cập nhật" },
     { label: "Giá bán", value: `${(book.sellPrice ?? 0).toLocaleString("vi-VN")} đ` },
@@ -161,7 +162,12 @@ const BookDetailPage: React.FC = () => {
    */
   const handleAddToCart = () => {
     if (soldOut) return;
-    addMutation.mutate({ idUser, idBook: book!.idBook, quantity });
+    addMutation.mutate(
+      { idUser, idBook: book!.idBook, quantity },
+      {
+        onError: (err: any) => toast.error(err?.message || "Không thể thêm vào giỏ hàng"),
+      }
+    );
   };
 
   /**
@@ -263,6 +269,11 @@ const BookDetailPage: React.FC = () => {
                   Mua ngay
                 </button>
               </div>
+              {favoriteBooksError && (
+                <p style={{ marginTop: 10, color: "#b91c1c", fontSize: 12 }}>
+                  {favoriteBooksErrorMessage}
+                </p>
+              )}
             </div>
 
             <div className="book-detail-policy-card">
@@ -364,6 +375,10 @@ const BookDetailPage: React.FC = () => {
           <h2 className="book-detail-section-title">Đánh giá sản phẩm</h2>
           {reviewsLoading ? (
             <p>Đang tải đánh giá…</p>
+          ) : reviewsError ? (
+            <p style={{ color: "#b91c1c" }}>
+              {reviewsErrorObj instanceof Error ? reviewsErrorObj.message : "Không thể tải đánh giá."}
+            </p>
           ) : (
             <>
               <div className="book-detail-review-summary">
@@ -431,6 +446,11 @@ const BookDetailPage: React.FC = () => {
           )}
         </section>
 
+        {showRelatedError ? (
+          <div className="book-detail-error" style={{ marginTop: 20 }}>
+            {relatedErrorMessage}
+          </div>
+        ) : null}
         {relatedBooks.length > 0 ? (
           <>
             <section className="book-detail-related">

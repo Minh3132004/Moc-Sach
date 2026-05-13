@@ -8,5 +8,6 @@ public interface OrderService {
     public ResponseEntity<?> save(CreateOrderRequest orderDTO);
     public ResponseEntity<?> update(UpdateOrderRequest orderDTO);
     public ResponseEntity<?> getTopBuyers(int size);
+    public ResponseEntity<?> getBooksByOrderId(int idOrder);
 
 }

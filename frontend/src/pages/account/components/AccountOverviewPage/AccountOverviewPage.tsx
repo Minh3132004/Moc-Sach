@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../../../app/providers/AuthProvider";
-import { useUserBasicById } from "../../../features/user/hooks/useUserBasicById";
-import { useUpdateProfile } from "../../../features/user/hooks/useUpdateProfile";
+import { useAuth } from "../../../../app/providers/AuthProvider";
+import { useUserBasicById } from "../../../../features/user/hooks/useUserBasicById";
+import { useUpdateProfile } from "../../../../features/user/hooks/useUpdateProfile";
 import { toast } from "react-toastify";
+import LoginPrompt from "../../../../components/auth/LoginPrompt";
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 
 function AccountOverviewPage() {
   const { user } = useAuth();
-  const { data, isLoading, isError } = useUserBasicById(user?.id);
+  const { data, isLoading, isError, error } = useUserBasicById(user?.id);
   const updateProfileMutation = useUpdateProfile();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -21,6 +23,16 @@ function AccountOverviewPage() {
   });
 
   const profile = data?.data;
+
+  if (!user?.id) {
+    return (
+      <LoginPrompt 
+        title="Yêu cầu đăng nhập"
+        message="Vui lòng đăng nhập để xem và chỉnh sửa thông tin cá nhân của bạn."
+        icon={<AccountCircleOutlinedIcon style={{ fontSize: 64 }} />}
+      />
+    );
+  }
 
   // Cập nhật formData khi có dữ liệu profile từ API
   useEffect(() => {
@@ -257,7 +269,9 @@ function AccountOverviewPage() {
 
       {(isLoading || isError) && (
         <div style={{ padding: 20, textAlign: "center", borderRadius: 16, background: "#fff1f2", color: "#be123c" }}>
-          {isLoading ? "🔄 Đang tải dữ liệu hồ sơ..." : "⚠️ Không thể tải thông tin, vui lòng thử lại sau."}
+          {isLoading
+            ? "🔄 Đang tải dữ liệu hồ sơ..."
+            : (error instanceof Error ? error.message : "⚠️ Không thể tải thông tin, vui lòng thử lại sau.")}
         </div>
       )}
     </div>

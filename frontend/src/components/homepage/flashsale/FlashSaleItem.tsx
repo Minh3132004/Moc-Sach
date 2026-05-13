@@ -20,14 +20,14 @@ const FlashSaleItem: React.FC<FlashSaleItemProps> = ({ book }) => {
     const placeholderImageUrl = "https://via.placeholder.com/180x240?text=No+Image";
     const { data: images } = useImagesByBook(book.idBook);
     const firstImage = images && images.length > 0 ? images[0] : undefined;
-    const imageUrl = firstImage?.dataImage || firstImage?.urlImage || placeholderImageUrl;
+    const imageUrl = firstImage?.urlImage || placeholderImageUrl;
 
     // Lấy thông tin user từ AuthContext
     const { user } = useAuth();
     const idUser = user?.id;
 
     // Lấy danh sách sách yêu thích của user để kiểm tra trạng thái
-    const { data: favoriteBooks } = useFavoriteBooksByUser(idUser);
+    const { data: favoriteBooks, isError: favoriteBooksError, error: favoriteBooksErrorObj } = useFavoriteBooksByUser(idUser);
     const isFavorited = favoriteBooks?.some(fb => fb.idBook === book.idBook) ?? false;
 
     // Hook thêm / xóa yêu thích
@@ -103,6 +103,11 @@ const FlashSaleItem: React.FC<FlashSaleItemProps> = ({ book }) => {
                     </button>
                 </div>
                 <div className="item-title">{book.nameBook}</div>
+                {favoriteBooksError && (
+                    <div style={{ marginTop: 4, color: "#b91c1c", fontSize: 11 }}>
+                        {favoriteBooksErrorObj instanceof Error ? favoriteBooksErrorObj.message : "Không thể tải danh sách yêu thích."}
+                    </div>
+                )}
                 <div className="item-price-row">
                     <span className="current-price">{(book.sellPrice || 0).toLocaleString('vi-VN')} đ</span>
                     {book.discountPercent && book.discountPercent > 0 ? (

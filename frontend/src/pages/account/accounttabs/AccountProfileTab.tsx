@@ -1,4 +1,4 @@
-import AccountOverviewPage from "../components/AccountOverviewPage";
+import AccountOverviewPage from "../components/AccountOverviewPage/AccountOverviewPage";
 
 function AccountProfileTab() {
   return <AccountOverviewPage />;

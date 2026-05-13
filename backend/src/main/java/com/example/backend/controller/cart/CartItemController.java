@@ -29,4 +29,10 @@ public class CartItemController {
             @Valid @RequestBody CartItemRequest cartItemDTO) {
         return cartService.updateQuantity(idCart, cartItemDTO);
     }
+
+    // Lấy danh sách sản phẩm trong giỏ hàng theo id người dùng
+    @GetMapping("/user/{idUser}")
+    public ResponseEntity<?> getCartItemsByUserId(@PathVariable @Positive(message = "idUser phải lớn hơn 0") int idUser) {
+        return cartService.getCartItemsByUserId(idUser);
+    }
 }

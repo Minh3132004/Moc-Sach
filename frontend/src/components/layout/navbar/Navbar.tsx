@@ -34,7 +34,16 @@ function Navbar() {
   };
 
   useEffect(() => {
+    const handleOpenAuthModal = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setAuthModalTab(customEvent.detail?.tab || "login");
+      setShowAuthModal(true);
+    };
+
+    window.addEventListener("openAuthModal", handleOpenAuthModal);
+
     return () => {
+      window.removeEventListener("openAuthModal", handleOpenAuthModal);
       if (closeAccountMenuTimeoutRef.current !== null) {
         window.clearTimeout(closeAccountMenuTimeoutRef.current);
       }
@@ -91,14 +100,14 @@ function Navbar() {
               </svg>
               <span>Thông báo</span>
             </div>
-            <div className="nav-item">
+            <Link to="/cart" className="nav-item" style={{ textDecoration: 'none', color: 'inherit' }}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="9" cy="21" r="1"></circle>
                 <circle cx="20" cy="21" r="1"></circle>
                 <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"></path>
               </svg>
               <span>Giỏ hàng</span>
-            </div>
+            </Link>
             <div
               className="nav-item account-item"
               onMouseEnter={openAccountMenu}

@@ -5,12 +5,14 @@ import StarIcon from "@mui/icons-material/Star";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import { toast } from "react-toastify";
 
-import { useAuth } from "../../../app/providers/AuthProvider";
-import { useFavoriteBooksByUser } from "../../../features/favorite/hooks/useFavoriteBooksByUser";
-import { useRemoveFavoriteBook } from "../../../features/favorite/hooks/useRemoveFavoriteBook";
-import { useBookById } from "../../../features/book/hooks/useBookById";
-import { useImagesByBook } from "../../../features/image/hooks";
+import { useAuth } from "../../../../app/providers/AuthProvider";
+import { useFavoriteBooksByUser } from "../../../../features/favorite/hooks/useFavoriteBooksByUser";
+import { useRemoveFavoriteBook } from "../../../../features/favorite/hooks/useRemoveFavoriteBook";
+import { useBookById } from "../../../../features/book/hooks/useBookById";
+import { useImagesByBook } from "../../../../features/image/hooks";
+import LoginPrompt from "../../../../components/auth/LoginPrompt";
 import "./AccountFavoritesPage.css";
+import { useAddCartItem } from "../../../../features/cart/hooks";
 
 const PLACEHOLDER_IMG = "https://via.placeholder.com/160x220?text=No+Image";
 
@@ -21,12 +23,12 @@ interface FavoriteBookCardProps {
 }
 
 const FavoriteBookCard: React.FC<FavoriteBookCardProps> = ({ idBook, idUser }) => {
-  const { data: book } = useBookById(idBook);
+  const { data: book, isError: bookError, error: bookErrorObj } = useBookById(idBook);
   const { data: images } = useImagesByBook(idBook);
   const { mutate: removeFavorite, isPending } = useRemoveFavoriteBook();
 
   const firstImage = images && images.length > 0 ? images[0] : undefined;
-  const imageUrl = firstImage?.urlImage || firstImage?.dataImage || PLACEHOLDER_IMG;
+  const imageUrl = firstImage?.urlImage || PLACEHOLDER_IMG;
 
   const handleRemove = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -40,6 +42,34 @@ const FavoriteBookCard: React.FC<FavoriteBookCardProps> = ({ idBook, idUser }) =
       }
     );
   };
+
+  const addMutation = useAddCartItem();
+
+  /**
+   * Thực hiện thêm sản phẩm vào giỏ hàng khi người dùng nhấn nút.
+   */
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isSoldOut) return;
+    addMutation.mutate(
+      { idUser, idBook: book!.idBook, quantity: 1 },
+      {
+        onError: (err: any) => toast.error(err?.message || "Không thể thêm vào giỏ hàng"),
+      }
+    );
+  };
+  
+
+  if (bookError) {
+    return (
+      <div className="fav-card" style={{ padding: 16, border: "1px solid rgba(17, 24, 39, 0.08)", borderRadius: 14 }}>
+        <p style={{ margin: 0, color: "#b91c1c", fontWeight: 600, fontSize: 13 }}>
+          {bookErrorObj instanceof Error ? bookErrorObj.message : "Không thể tải thông tin sách."}
+        </p>
+      </div>
+    );
+  }
 
   if (!book) {
     return (
@@ -104,15 +134,11 @@ const FavoriteBookCard: React.FC<FavoriteBookCardProps> = ({ idBook, idUser }) =
           )}
         </div>
 
-        {/* Nút mua */}
+        {/* Nút thêm vào giỏ hàng */}
         <button
           className={`fav-card__buy-btn${isSoldOut ? " fav-card__buy-btn--disabled" : ""}`}
-          disabled={isSoldOut}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!isSoldOut) toast.success(`Đã thêm "${book.nameBook}" vào giỏ hàng!`);
-          }}
+          disabled={isSoldOut || addMutation.isPending}
+          onClick={handleAddToCart}
         >
           <ShoppingCartOutlinedIcon sx={{ fontSize: 16 }} />
           {isSoldOut ? "Hết hàng" : "Thêm vào giỏ"}
@@ -127,19 +153,16 @@ function AccountFavoritesPage() {
   const { user } = useAuth();
   const idUser = user?.id;
 
-  const { data: favoriteBooks, isLoading } = useFavoriteBooksByUser(idUser);
+  const { data: favoriteBooks, isLoading, isError, error } = useFavoriteBooksByUser(idUser);
 
   // ── Chưa đăng nhập ──
   if (!idUser) {
     return (
-      <div className="fav-page">
-        <div className="fav-page__empty">
-          <FavoriteIcon className="fav-page__empty-icon" />
-          <h3>Vui lòng đăng nhập</h3>
-          <p>Bạn cần đăng nhập để xem danh sách sách yêu thích.</p>
-          <Link to="/login" className="fav-page__login-btn">Đăng nhập ngay</Link>
-        </div>
-      </div>
+      <LoginPrompt 
+        title="Vui lòng đăng nhập"
+        message="Bạn cần đăng nhập để xem danh sách sách yêu thích của mình."
+        icon={<FavoriteIcon style={{ fontSize: 64 }} />}
+      />
     );
   }
 
@@ -161,6 +184,22 @@ function AccountFavoritesPage() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="fav-page">
+        <div className="fav-page__header">
+          <FavoriteIcon className="fav-page__header-icon" />
+          <h3 className="fav-page__title">Sản phẩm yêu thích</h3>
+        </div>
+        <div className="fav-page__empty">
+          <FavoriteIcon className="fav-page__empty-icon" />
+          <h3>Không thể tải danh sách yêu thích</h3>
+          <p>{error instanceof Error ? error.message : "Vui lòng thử lại sau."}</p>
         </div>
       </div>
     );

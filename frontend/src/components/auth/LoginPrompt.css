@@ -1,0 +1,82 @@
+.login-prompt-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  min-height: 50vh;
+}
+
+.login-prompt-card {
+  max-width: 500px;
+  width: 100%;
+  padding: 50px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  border-radius: 16px; /* Hơi tròn hơn so với card mặc định */
+}
+
+.login-prompt-icon {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: #f4fafb; /* Teal 050 */
+  color: #2a8190; /* Teal 600 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  box-shadow: 0 8px 25px rgba(42, 129, 144, 0.15);
+  animation: float-icon 3s ease-in-out infinite;
+}
+
+@keyframes float-icon {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.login-prompt-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.login-prompt-message {
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.login-prompt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 40px;
+  background: #2a8190;
+  color: white;
+  text-decoration: none;
+  border-radius: 50px; /* Bo tròn hoàn toàn tạo vẻ hiện đại */
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(42, 129, 144, 0.3);
+}
+
+.login-prompt-btn:hover {
+  background: #1a5963;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(42, 129, 144, 0.4);
+}

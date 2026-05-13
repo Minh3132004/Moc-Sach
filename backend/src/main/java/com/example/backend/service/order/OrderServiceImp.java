@@ -197,6 +197,34 @@ public class OrderServiceImp implements OrderService {
         }
     }
 
+    // Lấy danh sách sách theo id đơn hàng
+    @Override
+    public ResponseEntity<?> getBooksByOrderId(int idOrder) {
+        try {
+            Order order = orderRepository.findById(idOrder)
+                    .orElseThrow(() -> new NotFoundException("Không tìm thấy đơn hàng"));
+            
+            List<OrderDetail> orderDetails = orderDetailRepository.findOrderDetailsByOrder(order);
+            List<OrderDetailResponse> detailResponses = new ArrayList<>();
+            
+            for (OrderDetail detail : orderDetails) {
+                detailResponses.add(new OrderDetailResponse(
+                        detail.getQuantity(),
+                        detail.getPrice(),
+                        detail.isReview(),
+                        detail.getBook(),
+                        detail.getOrder()
+                ));
+            }
+            
+            return ResponseEntity.ok(ApiResponse.success("Lấy danh sách sách theo đơn hàng thành công", detailResponses));
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy danh sách sách theo đơn hàng thất bại", e);
+        }
+    }
+
     private OrderResponse mapToOrderResponse(Order order, List<OrderDetail> orderDetails) {
         List<OrderDetailResponse> detailResponses = new ArrayList<>();
         if (orderDetails != null) {

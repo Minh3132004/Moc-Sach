@@ -9,4 +9,7 @@ public interface CartService {
 
     // Cập nhật số lượng sản phẩm trong giỏ hàng
     public ResponseEntity<?> updateQuantity(int idCart, CartItemRequest cartItemDTO);
+
+    // Lấy danh sách sản phẩm trong giỏ hàng theo id người dùng
+    public ResponseEntity<?> getCartItemsByUserId(int idUser);
 }
