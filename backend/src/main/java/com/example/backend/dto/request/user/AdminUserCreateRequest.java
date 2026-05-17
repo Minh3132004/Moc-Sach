@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreateRequest {
+public class AdminUserCreateRequest {
 
     @NotBlank(message = "Tên đăng nhập không được để trống")
     @Size(min = 3, message = "Tên đăng nhập phải có ít nhất 3 ký tự")

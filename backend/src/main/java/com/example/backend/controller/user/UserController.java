@@ -18,8 +18,9 @@ import com.example.backend.dto.request.user.ChangeAvatarRequest;
 import com.example.backend.dto.request.user.ChangePasswordRequest;
 import com.example.backend.dto.request.email.EmailRequest;
 import com.example.backend.dto.request.user.UpdateProfileRequest;
+import com.example.backend.dto.request.user.AdminUserCreateRequest;
+import com.example.backend.dto.request.user.AdminUserUpdateRequest;
 import com.example.backend.dto.request.user.UserCreateRequest;
-import com.example.backend.entity.user.User;
 import com.example.backend.dto.request.auth.LoginRequest;
 import com.example.backend.service.user.UserServiceImp;
 
@@ -41,18 +42,29 @@ public class UserController {
 
     @PostMapping("/add-user")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> addUserByAdmin(@Validated @RequestBody UserCreateRequest userDTO) {
-        return userServiceImp.addUserByAdmin(userDTO);
+    public ResponseEntity<?> addUserByAdmin(@Validated @RequestBody AdminUserCreateRequest request) {
+        return userServiceImp.addUserByAdmin(request);
     }
 
     @PatchMapping("/{id}/update-by-admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateUserByAdmin(@PathVariable @Positive(message = "id phải lớn hơn 0") int id,
-            @Validated @RequestBody User user) {
-        return userServiceImp.updateUserByAdmin(id, user);
+            @Validated @RequestBody AdminUserUpdateRequest request) {
+        return userServiceImp.updateUserByAdmin(id, request);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get-all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String sort
+    ) {
+        return userServiceImp.getAllUsers(page, size, keyword, sort);
+    }
+
+    @GetMapping("/detail/{id}")
     public ResponseEntity<?> getUserById(@PathVariable @Positive(message = "id phải lớn hơn 0") int id) {
         return userServiceImp.getUserById(id);
     }
@@ -86,5 +98,13 @@ public class UserController {
     @PutMapping("/change-avatar")
     public ResponseEntity<?> changeAvatar(@Valid @RequestBody ChangeAvatarRequest changeAvatarDTO) {
         return userServiceImp.changeAvatar(changeAvatarDTO);
+    }
+
+
+
+    @PatchMapping("/{id}/toggle-status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> toggleUserStatus(@PathVariable @Positive(message = "id phải lớn hơn 0") int id) {
+        return userServiceImp.toggleUserStatus(id);
     }
 }

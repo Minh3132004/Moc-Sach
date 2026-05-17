@@ -2,7 +2,7 @@ import "./App.css";
 import Navbar from "../components/layout/navbar/Navbar";
 import Footer from "../components/layout/footer/Footer";
 import HomePage from "../components/homepage/HomePage";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import ActiveAccountPage from "../pages/activeaccount/ActiveAccountPage";
 import BestSellerPage from "../pages/bestseller/BestSellerPage";
 import FlashSalePage from "../pages/flashsale/FlashSalePage";
@@ -15,10 +15,17 @@ import AccountOrdersPage from "../pages/account/components/AccountOrdersPage/Acc
 import AccountFavoritesPage from "../pages/account/components/AccountFavoritesPage/AccountFavoritesPage";
 import AccountVouchersPage from "../pages/account/components/AccountVouchersPage/AccountVouchersPage";
 
+// Admin imports
+import AdminLayout from "../pages/admin/AdminLayout";
+import UserManagementPage from "../pages/admin/UserManagement/UserManagement";
+
 function App() {
+  const location = useLocation();
+  const isAdminPath = location.pathname.startsWith("/admin");
+
   return (
     <>
-      <Navbar />
+      {!isAdminPath && <Navbar />}
       <main style={{ flex: 1 }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -34,9 +41,14 @@ function App() {
             <Route path="/voucher" element={<AccountVouchersPage />} />
           </Route>
           <Route path="/active/:email/:activationCode" element={<ActiveAccountPage />} />
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="users" element={<UserManagementPage />} />
+          </Route>
         </Routes>
       </main>
-      <Footer />
+      {!isAdminPath && <Footer />}
     </>
   );
 }

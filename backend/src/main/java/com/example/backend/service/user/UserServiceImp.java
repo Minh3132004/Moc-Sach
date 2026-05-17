@@ -3,6 +3,8 @@ package com.example.backend.service.user;
 import com.example.backend.dao.user.RoleRepository;
 import com.example.backend.dao.user.UserRepository;
 import com.example.backend.dto.request.user.ChangeAvatarRequest;
+import com.example.backend.dto.request.user.AdminUserCreateRequest;
+import com.example.backend.dto.request.user.AdminUserUpdateRequest;
 import com.example.backend.dto.request.user.UserCreateRequest;
 import com.example.backend.dto.request.user.ChangePasswordRequest;
 import com.example.backend.dto.request.user.UpdateProfileRequest;
@@ -27,6 +29,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -60,21 +66,7 @@ public class UserServiceImp implements UserService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại!"));
 
-            UserBasicResponse response = new UserBasicResponse(
-                    user.getIdUser(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getPhoneNumber(),
-                    user.getGender(),
-                    user.getDateOfBirth(),
-                    user.getDeliveryAddress(),
-                    user.getAvatar(),
-                    user.isEnabled()
-            );
-
-            return ResponseEntity.ok(ApiResponse.success("Lấy người dùng thành công", response));
+            return ResponseEntity.ok(ApiResponse.success("Lấy người dùng thành công", toUserBasicResponse(user)));
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -92,6 +84,11 @@ public class UserServiceImp implements UserService {
             // Kiểm tra email
             if (userRepository.existsByEmail(userDTO.getEmail())) {
                 throw new ConflictException("Email đã tồn tại.");
+            }
+
+            // Kiểm tra số điện thoại
+            if (userRepository.existsByPhoneNumber(userDTO.getPhoneNumber())) {
+                throw new ConflictException("Số điện thoại đã tồn tại.");
             }
 
             User user = new User();
@@ -135,37 +132,29 @@ public class UserServiceImp implements UserService {
     }
 
     // 👇 Thêm user bởi Admin
-    public ResponseEntity<?> addUserByAdmin(UserCreateRequest userDTO) {
+    public ResponseEntity<?> addUserByAdmin(AdminUserCreateRequest request) {
         try {
-            // Kiểm tra username đã tồn tại chưa
-            if (userRepository.existsByUsername(userDTO.getUsername())) {
+            if (userRepository.existsByUsername(request.getUsername())) {
                 throw new ConflictException("Username đã tồn tại.");
             }
-
-            // Kiểm tra email
-            if (userRepository.existsByEmail(userDTO.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
                 throw new ConflictException("Email đã tồn tại.");
+            }
+            if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+                throw new ConflictException("Số điện thoại đã tồn tại.");
             }
 
             User user = new User();
-            user.setUsername(userDTO.getUsername());
-            user.setEmail(userDTO.getEmail());
-            user.setFirstName(userDTO.getFirstName());
-            user.setLastName(userDTO.getLastName());
-            user.setPhoneNumber(userDTO.getPhoneNumber());
-
-            // Mã hoá mật khẩu
-            String encodePassword = passwordEncoder.encode(userDTO.getPassword());
-            user.setPassword(encodePassword);
-
-            // Set ảnh đại diện
+            user.setUsername(request.getUsername());
+            user.setEmail(request.getEmail());
+            user.setFirstName(request.getFirstName());
+            user.setLastName(request.getLastName());
+            user.setPhoneNumber(request.getPhoneNumber());
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setAvatar("");
-
-            // Tạo mã kích hoạt
             user.setActivationCode(generateActivationCode());
             user.setEnabled(false);
 
-            // Cho role mặc định là CUSTOMER
             List<Role> roleList = new ArrayList<>();
             Role customerRole = roleRepository.findByNameRole("CUSTOMER");
             if (customerRole == null) {
@@ -174,13 +163,12 @@ public class UserServiceImp implements UserService {
             roleList.add(customerRole);
             user.setListRoles(roleList);
 
-            // Lưu user vào database
-            userRepository.save(user);
+            User savedUser = userRepository.save(user);
+            sendEmailActivation(savedUser.getEmail(), savedUser.getActivationCode());
 
-            // Gửi email xác nhận
-            sendEmailActivation(user.getEmail(), user.getActivationCode());
-
-            return ResponseEntity.ok(ApiResponse.success("Người dùng được tạo thành công! Email xác nhận đã được gửi.", null));
+            return ResponseEntity.ok(ApiResponse.success(
+                    "Người dùng được tạo thành công! Email xác nhận đã được gửi.",
+                    toUserBasicResponse(savedUser)));
         } catch (ConflictException | NotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -189,61 +177,81 @@ public class UserServiceImp implements UserService {
     }
 
     // 👇 Cập nhật user bởi Admin
-    public ResponseEntity<?> updateUserByAdmin(int userId, User updateData) {
+    public ResponseEntity<?> updateUserByAdmin(int userId, AdminUserUpdateRequest request) {
         try {
-            // Tìm user theo ID
             User existingUser = userRepository.findById(userId)
                     .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại."));
 
-            // Cập nhật các field
-            if (updateData.getEmail() != null && !updateData.getEmail().isEmpty()) {
-                // Kiểm tra email không bị trùng (ngoại trừ user hiện tại)
-                if (!existingUser.getEmail().equals(updateData.getEmail()) &&
-                        userRepository.existsByEmail(updateData.getEmail())) {
+            if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
+                String email = request.getEmail().trim();
+                if (!existingUser.getEmail().equals(email) && userRepository.existsByEmail(email)) {
                     throw new ConflictException("Email đã tồn tại.");
                 }
-                existingUser.setEmail(updateData.getEmail());
+                existingUser.setEmail(email);
             }
 
-            if (updateData.getFirstName() != null && !updateData.getFirstName().isEmpty()) {
-                existingUser.setFirstName(updateData.getFirstName());
+            if (request.getFirstName() != null && !request.getFirstName().trim().isEmpty()) {
+                existingUser.setFirstName(request.getFirstName().trim());
             }
 
-            if (updateData.getLastName() != null && !updateData.getLastName().isEmpty()) {
-                existingUser.setLastName(updateData.getLastName());
+            if (request.getLastName() != null && !request.getLastName().trim().isEmpty()) {
+                existingUser.setLastName(request.getLastName().trim());
             }
 
-            if (updateData.getPhoneNumber() != null) {
-                existingUser.setPhoneNumber(updateData.getPhoneNumber());
+            if (request.getPhoneNumber() != null && !request.getPhoneNumber().trim().isEmpty()) {
+                String phoneNumber = request.getPhoneNumber().trim();
+                if (!existingUser.getPhoneNumber().equals(phoneNumber)
+                        && userRepository.existsByPhoneNumber(phoneNumber)) {
+                    throw new ConflictException("Số điện thoại đã tồn tại.");
+                }
+                existingUser.setPhoneNumber(phoneNumber);
             }
 
-            if (updateData.getDateOfBirth() != null) {
-                existingUser.setDateOfBirth(updateData.getDateOfBirth());
+            if (request.getDateOfBirth() != null) {
+                existingUser.setDateOfBirth(new java.sql.Date(request.getDateOfBirth().getTime()));
             }
 
-            if (updateData.getGender() != '\0') {
-                existingUser.setGender(updateData.getGender());
+            if (request.getGender() != null && !request.getGender().trim().isEmpty()) {
+                existingUser.setGender(Character.toUpperCase(request.getGender().trim().charAt(0)));
             }
 
-            if (updateData.getDeliveryAddress() != null) {
-                existingUser.setDeliveryAddress(updateData.getDeliveryAddress());
+            if (request.getDeliveryAddress() != null) {
+                existingUser.setDeliveryAddress(request.getDeliveryAddress().trim());
             }
 
-            // Cập nhật password nếu có
-            if (updateData.getPassword() != null && !updateData.getPassword().isEmpty()) {
-                String encodePassword = passwordEncoder.encode(updateData.getPassword());
-                existingUser.setPassword(encodePassword);
+            if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+                String password = request.getPassword().trim();
+                if (password.length() < 8) {
+                    throw new BadRequestException("Mật khẩu phải có ít nhất 8 ký tự");
+                }
+                existingUser.setPassword(passwordEncoder.encode(password));
             }
 
-            // Lưu user đã cập nhật
-            userRepository.save(existingUser);
+            User savedUser = userRepository.save(existingUser);
 
-            return ResponseEntity.ok(ApiResponse.success("Cập nhật người dùng thành công.", null));
+            return ResponseEntity.ok(ApiResponse.success(
+                    "Cập nhật người dùng thành công.",
+                    toUserBasicResponse(savedUser)));
         } catch (ConflictException | NotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new InternalServerException("Cập nhật người dùng thất bại", e);
         }
+    }
+
+    private UserBasicResponse toUserBasicResponse(User user) {
+        return new UserBasicResponse(
+                user.getIdUser(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getGender(),
+                user.getDateOfBirth(),
+                user.getDeliveryAddress(),
+                user.getAvatar(),
+                user.isEnabled());
     }
 
     private String generateActivationCode() {
@@ -467,6 +475,59 @@ public class UserServiceImp implements UserService {
             throw e;
         } catch (Exception e) {
             throw new InternalServerException("Đổi ảnh đại diện thất bại", e);
+        }
+    }
+
+    // Lấy danh sách users (phân trang + lọc theo keyword)
+    @Override
+    public ResponseEntity<?> getAllUsers(int page, int size, String keyword, String sort) {
+        try {
+            Sort sortObj = Sort.by(Sort.Direction.DESC, "idUser");
+            if (sort != null) {
+                switch (sort) {
+                    case "idUser,desc":
+                        sortObj = Sort.by(Sort.Direction.DESC, "idUser");
+                        break;
+                    case "idUser,asc":
+                        sortObj = Sort.by(Sort.Direction.ASC, "idUser");
+                        break;
+                }
+            }
+            Pageable pageable = PageRequest.of(page, size, sortObj);
+            Page<User> usersPage;
+            if (keyword != null && !keyword.isEmpty()) {
+                usersPage = userRepository.searchUsers(keyword, pageable);
+            } else {
+                usersPage = userRepository.findAll(pageable);
+            }
+
+            Page<UserBasicResponse> responsePage = usersPage.map(this::toUserBasicResponse);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("items", responsePage.getContent());
+            response.put("totalElements", responsePage.getTotalElements());
+            response.put("totalPages", responsePage.getTotalPages());
+            response.put("currentPage", responsePage.getNumber());
+
+            return ResponseEntity.ok(ApiResponse.success("Lấy danh sách người dùng thành công", response));
+        } catch (Exception e) {
+            throw new InternalServerException("Lấy danh sách người dùng thất bại", e);
+        }
+    }
+
+    // Cập nhật trạng thái khóa/mở khóa
+    @Override
+    public ResponseEntity<?> toggleUserStatus(int userId) {
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại."));
+            user.setEnabled(!user.isEnabled());
+            userRepository.save(user);
+            return ResponseEntity.ok(ApiResponse.success("Cập nhật trạng thái thành công.", null));
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerException("Cập nhật trạng thái thất bại", e);
         }
     }
 }

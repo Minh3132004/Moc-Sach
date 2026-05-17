@@ -7,8 +7,12 @@ import { useRegisterUser } from "../../features/user/hooks/useRegisterUser";
 import { useLoginUser } from "../../features/user/hooks/useLoginUser";
 import { forgotPassword } from "../../features/user/api/userApi";
 import { useAuth } from "../../app/providers/AuthProvider";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import type { JwtPayload } from "../../features/auth/JwtPayload";
 
 function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<AuthTab>(initialTab);
   const [registerMessage, setRegisterMessage] = useState<string>("");
 
@@ -61,17 +65,33 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
       const result = await loginMutation.mutateAsync(payload);
       const message = result.message || "Đăng nhập thành công!";
 
+      let isAdmin = false;
       if (result.data?.jwtToken) {
         login(result.data.jwtToken);
+        try {
+          const decoded = jwtDecode<JwtPayload>(result.data.jwtToken);
+          if (decoded && decoded.role === "ADMIN") {
+            isAdmin = true;
+          }
+        } catch (err) {
+          console.error("Lỗi giải mã token:", err);
+        }
       }
 
-      setRegisterMessage(message);
-      setRegisterStatus("success");
-      
-      // Chờ 1.5s để người dùng kịp đọc thông báo rồi đóng modal (không cần reload)
-      setTimeout(() => {
-        onClose();
-      }, 1500);
+      if (isAdmin) {
+        setRegisterMessage("Đăng nhập thành công! Đang chuyển hướng đến trang Quản trị...");
+        setRegisterStatus("success");
+        setTimeout(() => {
+          onClose();
+          navigate("/admin");
+        }, 1000);
+      } else {
+        setRegisterMessage(message);
+        setRegisterStatus("success");
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      }
     } catch (e: any) {
       setRegisterMessage(e?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
       setRegisterStatus("error");
@@ -122,7 +142,7 @@ function AuthModal({ open, initialTab, onClose }: AuthModalProps) {
       const result = await forgotPassword(forgotPasswordForm.email);
       setRegisterMessage(result.message || "Mật khẩu tạm thời đã được gửi về email của bạn.");
       setRegisterStatus("success");
-      
+
       // Sau 3s quay lại màn hình đăng nhập
       setTimeout(() => {
         setTab("login");
