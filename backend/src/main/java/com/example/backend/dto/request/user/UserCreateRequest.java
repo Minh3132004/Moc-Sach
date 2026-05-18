@@ -18,7 +18,7 @@ public class UserCreateRequest {
     private String username;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 8, message = "Mật khẩu phải có ít nhất từ 8 đến 64 ký tự")
+    @Size(min = 8, max = 64, message = "Mật khẩu phải từ 8 đến 64 ký tự")
     private String password;
 
     @NotBlank(message = "Email không được để trống")

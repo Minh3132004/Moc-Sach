@@ -341,44 +341,66 @@ const UserManagement = () => {
     };
 
     const validateForm = (data: any, isEditMode: boolean) => {
-        if (!data.username.trim() && !isEditMode) {
-            toast.error("Tên tài khoản không được để trống!");
-            return false;
+        const emailValue = (data.email || "").trim();
+        const phoneValue = (data.phoneNumber || "").trim();
+        const passwordValue = (data.password || "").trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^(0[0-9]{9})$/;
+
+        if (!isEditMode) {
+            if (!data.username.trim()) {
+                toast.error("Tên tài khoản không được để trống!");
+                return false;
+            }
+            if (data.username.length < 3) {
+                toast.error("Tên tài khoản phải có ít nhất 3 ký tự!");
+                return false;
+            }
+            if (!emailValue) {
+                toast.error("Email không được để trống!");
+                return false;
+            }
+            if (!emailRegex.test(emailValue)) {
+                toast.error("Email không hợp lệ!");
+                return false;
+            }
+            if (!passwordValue) {
+                toast.error("Mật khẩu không được để trống!");
+                return false;
+            }
+            if (passwordValue.length < 8 || passwordValue.length > 64) {
+                toast.error("Mật khẩu phải có từ 8 đến 64 ký tự!");
+                return false;
+            }
+            if (!data.firstName.trim()) {
+                toast.error("Tên không được để trống!");
+                return false;
+            }
+            if (!data.lastName.trim()) {
+                toast.error("Họ không được để trống!");
+                return false;
+            }
+            if (!phoneValue) {
+                toast.error("Số điện thoại không được để trống!");
+                return false;
+            }
+            if (!phoneRegex.test(phoneValue)) {
+                toast.error("Số điện thoại không hợp lệ!");
+                return false;
+            }
+            return true;
         }
-        if (data.username.length < 3 && !isEditMode) {
-            toast.error("Tên tài khoản phải có ít nhất 3 ký tự!");
-            return false;
-        }
-        if (!data.email.trim()) {
-            toast.error("Email không được để trống!");
-            return false;
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-            toast.error("Email không hợp lệ!");
-            return false;
-        }
-        if (!isEditMode && !data.password.trim()) {
-            toast.error("Mật khẩu không được để trống!");
-            return false;
-        }
-        if (!isEditMode && (data.password.length < 8 || data.password.length > 64)) {
+
+        if (passwordValue && (passwordValue.length < 8 || passwordValue.length > 64)) {
             toast.error("Mật khẩu phải có từ 8 đến 64 ký tự!");
             return false;
         }
-        if (isEditMode && data.password.trim() && (data.password.length < 8 || data.password.length > 64)) {
-            toast.error("Mật khẩu mới phải có từ 8 đến 64 ký tự!");
+        if (emailValue && !emailRegex.test(emailValue)) {
+            toast.error("Email không hợp lệ!");
             return false;
         }
-        if (!data.firstName.trim()) {
-            toast.error("Tên không được để trống!");
-            return false;
-        }
-        if (!data.lastName.trim()) {
-            toast.error("Họ không được để trống!");
-            return false;
-        }
-        if (!data.phoneNumber.trim()) {
-            toast.error("Số điện thoại không được để trống!");
+        if (phoneValue && !phoneRegex.test(phoneValue)) {
+            toast.error("Số điện thoại không hợp lệ!");
             return false;
         }
         return true;

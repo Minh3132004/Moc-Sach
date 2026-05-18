@@ -65,8 +65,8 @@ function AccountPasswordTab() {
         hasError = true;
       }
 
-      if (formData.newPassword.length < 8) {
-        newErrors.newPassword = "Mật khẩu phải có ít nhất 8 ký tự";
+      if (formData.newPassword.length < 8 || formData.newPassword.length > 64) {
+        newErrors.newPassword = "Mật khẩu phải có từ 8 đến 64 ký tự";
         hasError = true;
       }
     }

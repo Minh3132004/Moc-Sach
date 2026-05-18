@@ -33,7 +33,7 @@ export default function useRegisterForm() {
 
   const rawPasswordLengthError = useMemo(() => {
     if (!password) return "Mật khẩu không được để trống";
-    if (password.length < 6) return "Mật khẩu phải có ít nhất 6 ký tự";
+    if (password.length < 8 || password.length > 64) return "Mật khẩu phải có từ 8 đến 64 ký tự";
     return "";
   }, [password]);
 
@@ -78,9 +78,8 @@ export default function useRegisterForm() {
   const rawPhoneError = useMemo(() => {
     const value = phone.trim();
     if (!value) return "Số điện thoại không được để trống";
-    // Regex cho số điện thoại Việt Nam (bắt đầu bằng 0 hoặc +84, theo sau là 9 chữ số)
-    const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
-    if (!phoneRegex.test(value)) return "Số điện thoại không hợp lệ (VD: 0912345678)";
+    const phoneRegex = /^(0[0-9]{9})$/;
+    if (!phoneRegex.test(value)) return "Số điện thoại không hợp lệ";
     return "";
   }, [phone]);
 

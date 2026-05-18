@@ -21,7 +21,7 @@ public class AdminUserUpdateRequest {
     @Pattern(regexp = "^(0[0-9]{9})?$", message = "Số điện thoại không hợp lệ")
     private String phoneNumber;
 
-    @Size(min = 8, message = "Mật khẩu phải có ít nhất từ 8 đến 64 ký tự")
+    @Size(min = 8, max = 64, message = "Mật khẩu phải từ 8 đến 64 ký tự")
     private String password;
 
     @Past(message = "Ngày sinh phải là ngày trong quá khứ")
