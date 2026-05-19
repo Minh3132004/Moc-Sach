@@ -9,7 +9,7 @@ import java.util.List;
 public interface BookService {
     ResponseEntity<?> getAllBooks(int page, int size);
 
-    ResponseEntity<?> filterBooks(String author, List<Integer> genreIds, Double minPrice, Double maxPrice, String sort, int page, int size);
+    ResponseEntity<?> filterBooks(String bookName, String author, List<Integer> genreIds, Double minPrice, Double maxPrice, String sort, int page, int size);
 
     ResponseEntity<?> getHotBooks(int page, int size);
 

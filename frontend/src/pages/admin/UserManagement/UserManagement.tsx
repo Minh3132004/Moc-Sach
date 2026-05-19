@@ -16,8 +16,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import CloseIcon from '@mui/icons-material/Close';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 
 import './UserManagement.css';
+import { useUserBasicById } from '../../../features/user/hooks/useUserBasicById';
 
 // Helper to format Date to YYYY-MM-DD string for input
 const formatDateToInput = (dateStr: string | null | undefined) => {
@@ -280,6 +283,109 @@ const UserFormModal: React.FC<UserFormModalProps> = React.memo(({
 
 UserFormModal.displayName = 'UserFormModal';
 
+const UserDetailModal: React.FC<{ userId: number; onClose: () => void }> = ({ userId, onClose }) => {
+    const { data, isLoading, isError } = useUserBasicById(userId);
+    const user = data?.data;
+
+    useEffect(() => {
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = previousOverflow; };
+    }, []);
+
+    const modalContent = (
+        <div className="admin-modal-overlay" onClick={onClose}>
+            <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="admin-modal-header">
+                    <div className="admin-modal-title">
+                        <h5 className="admin-modal-title-main">
+                            <span className="admin-modal-helper"><PersonOutlineIcon fontSize="small" /> CHI TIẾT TÀI KHOẢN</span>
+                        </h5>
+                        <div className="admin-modal-title-sub">Thông tin chi tiết của người dùng</div>
+                    </div>
+                    <button type="button" className="admin-modal-close" onClick={onClose}>
+                        <CloseIcon fontSize="small" />
+                    </button>
+                </div>
+                <div className="admin-modal-body" style={{ padding: '24px' }}>
+                    {isLoading ? (
+                        <div className="text-center py-4 text-muted">Đang tải thông tin...</div>
+                    ) : isError || !user ? (
+                        <div className="text-center py-4 text-danger">Không thể tải thông tin người dùng!</div>
+                    ) : (
+                        <div className="admin-modal-grid-2" style={{ gap: '20px', padding: '8px' }}>
+                            <div className="admin-modal-field">
+                                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block' }}>Tên tài khoản</label>
+                                <div className="admin-modal-input" style={{ backgroundColor: '#F8FAFC', color: '#1E293B', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '14px', minHeight: '45px', display: 'flex', alignItems: 'center' }}>
+                                    {user.username || 'Đang cập nhật'}
+                                </div>
+                            </div>
+
+                            <div className="admin-modal-field">
+                                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block' }}>Họ và tên</label>
+                                <div className="admin-modal-input" style={{ backgroundColor: '#F8FAFC', color: '#1E293B', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '14px', minHeight: '45px', display: 'flex', alignItems: 'center' }}>
+                                    {user.lastName || user.firstName ? `${user.lastName || ''} ${user.firstName || ''}`.trim() : 'Đang cập nhật'}
+                                </div>
+                            </div>
+
+                            <div className="admin-modal-field">
+                                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block' }}>Email</label>
+                                <div className="admin-modal-input" style={{ backgroundColor: '#F8FAFC', color: '#1E293B', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '14px', minHeight: '45px', display: 'flex', alignItems: 'center' }}>
+                                    {user.email || 'Đang cập nhật'}
+                                </div>
+                            </div>
+
+                            <div className="admin-modal-field">
+                                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block' }}>Số điện thoại</label>
+                                <div className="admin-modal-input" style={{ backgroundColor: '#F8FAFC', color: '#1E293B', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '14px', minHeight: '45px', display: 'flex', alignItems: 'center' }}>
+                                    {user.phoneNumber || 'Đang cập nhật'}
+                                </div>
+                            </div>
+
+                            <div className="admin-modal-field">
+                                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block' }}>Ngày sinh</label>
+                                <div className="admin-modal-input" style={{ backgroundColor: '#F8FAFC', color: '#1E293B', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '14px', minHeight: '45px', display: 'flex', alignItems: 'center' }}>
+                                    {user.dateOfBirth ? formatDateDisplay(user.dateOfBirth) : 'Đang cập nhật'}
+                                </div>
+                            </div>
+
+                            <div className="admin-modal-field">
+                                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block' }}>Giới tính</label>
+                                <div className="admin-modal-input" style={{ backgroundColor: '#F8FAFC', color: '#1E293B', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '14px', minHeight: '45px', display: 'flex', alignItems: 'center' }}>
+                                    {user.gender === 'M' ? 'Nam' : user.gender === 'F' ? 'Nữ' : user.gender === 'K' ? 'Khác' : 'Đang cập nhật'}
+                                </div>
+                            </div>
+
+                            <div className="admin-modal-field" style={{ gridColumn: 'span 2' }}>
+                                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block' }}>Địa chỉ giao hàng</label>
+                                <div className="admin-modal-input" style={{ backgroundColor: '#F8FAFC', color: '#1E293B', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', fontSize: '14px', minHeight: '45px', display: 'flex', alignItems: 'center' }}>
+                                    {user.deliveryAddress || 'Đang cập nhật'}
+                                </div>
+                            </div>
+
+                            <div className="admin-modal-field" style={{ gridColumn: 'span 2' }}>
+                                <label style={{ fontWeight: 600, color: '#475569', marginBottom: '8px', display: 'block' }}>Trạng thái</label>
+                                <div style={{ display: 'flex', alignItems: 'center', height: '45px' }}>
+                                    <span className={user.enabled ? "badge-status active" : "badge-status inactive"}>
+                                        {user.enabled ? "Đang hoạt động" : "Bị khóa"}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+                <div className="admin-modal-footer">
+                    <button type="button" className="admin-modal-btn secondary" onClick={onClose}>
+                        Đóng
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+
+    return createPortal(modalContent, document.body);
+};
+
 const UserManagement = () => {
     const queryClient = useQueryClient();
     const [keyword, setKeyword] = useState("");
@@ -288,6 +394,7 @@ const UserManagement = () => {
     
     const [showAddForm, setShowAddForm] = useState(false);
     const [showEditForm, setShowEditForm] = useState(false);
+    const [viewUserId, setViewUserId] = useState<number | null>(null);
     const [newUser, setNewUser] = useState(getEmptyAddForm());
     const [editUser, setEditUser] = useState(getEmptyEditForm());
 
@@ -493,6 +600,10 @@ const UserManagement = () => {
                 </div>
             )}
 
+            {viewUserId !== null && (
+                <UserDetailModal userId={viewUserId} onClose={() => setViewUserId(null)} />
+            )}
+
             <div className="admin-card">
                 <div className="table-responsive">
                     <table className="table admin-table mb-0 align-middle">
@@ -550,6 +661,14 @@ const UserManagement = () => {
                                     </td>
                                     <td style={{ textAlign: "center" }}>
                                         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "12px", width: "100%" }}>
+                                            <button
+                                                className="btn-action btn-view"
+                                                onClick={() => setViewUserId(u.idUser)}
+                                                style={{ width: "80px" }}
+                                            >
+                                                <VisibilityIcon style={{ fontSize: '16px' }} />
+                                                Xem
+                                            </button>
                                             <button
                                                 className="btn-action btn-edit"
                                                 onClick={() => handleOpenEditForm(u)}

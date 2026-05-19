@@ -1,0 +1,144 @@
+﻿.admin-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    overflow: hidden;
+}
+
+.search-input {
+    min-width: 250px;
+    padding: 8px 12px;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    border-color: #0A8791;
+    box-shadow: 0 0 0 3px rgba(10, 135, 145, 0.1);
+}
+
+.add-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #0A8791;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.add-btn:hover {
+    background-color: #0c6c74;
+}
+
+.admin-table {
+    margin-bottom: 0;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    background-color: #F8FAFC;
+    color: #475569;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    padding: 16px;
+    border-bottom: 2px solid #E2E8F0;
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 16px;
+    color: #334155;
+    font-size: 14px;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+    background-color: #F8FAFC;
+}
+
+.admin-table .img-thumbnail {
+    width: 48px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.badge-stock {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-stock.in-stock {
+    background-color: #DEF7EC;
+    color: #046C4E;
+}
+
+.badge-stock.low-stock {
+    background-color: #FEF08A;
+    color: #B45309;
+}
+
+.badge-stock.out-of-stock {
+    background-color: #FDE8E8;
+    color: #9B1C1C;
+}
+
+.action-btn-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-icon.edit {
+    color: #0A8791;
+    background-color: rgba(10, 135, 145, 0.1);
+}
+.btn-icon.edit:hover {
+    background-color: rgba(10, 135, 145, 0.2);
+}
+
+.btn-icon.delete {
+    color: #E11D48;
+    background-color: rgba(225, 29, 72, 0.1);
+}
+.btn-icon.delete:hover {
+    background-color: rgba(225, 29, 72, 0.2);
+}
+
+.btn-icon.view {
+    color: #2563eb;
+    background-color: rgba(37, 99, 235, 0.1);
+}
+.btn-icon.view:hover {
+    background-color: rgba(37, 99, 235, 0.2);
+}

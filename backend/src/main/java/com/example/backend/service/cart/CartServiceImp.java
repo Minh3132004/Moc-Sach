@@ -184,7 +184,8 @@ public class CartServiceImp implements CartService {
                 book.getAvgRating(),
                 book.getSoldQuantity(),
                 book.getDiscountPercent(),
-                genres
+                genres,
+                null
         );
     }
 }

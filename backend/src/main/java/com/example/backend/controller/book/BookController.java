@@ -28,6 +28,7 @@ public class BookController {
 
     @GetMapping("/filter")
     public ResponseEntity<?> filterBooks(
+            @RequestParam(required = false) String bookName,
             @RequestParam(required = false) String author,
             @RequestParam(required = false) List<Integer> genreIds,
             @RequestParam(required = false) Double minPrice,
@@ -36,7 +37,7 @@ public class BookController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return bookService.filterBooks(author, genreIds, minPrice, maxPrice, sort, page, size);
+        return bookService.filterBooks(bookName, author, genreIds, minPrice, maxPrice, sort, page, size);
     }
 
     @GetMapping("/hot")

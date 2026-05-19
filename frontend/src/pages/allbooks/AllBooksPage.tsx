@@ -25,7 +25,8 @@ const AllBooksPage: React.FC = () => {
   const authorQuery = authorKeyword.trim();
 
   const { data, isLoading, isError, error } = useFilterBooks(
-    authorQuery,
+    authorQuery, // bookName or author search keyword
+    "",          // author empty
     selectedGenreIds,
     priceRange?.min,
     priceRange?.max,
@@ -120,12 +121,12 @@ const AllBooksPage: React.FC = () => {
             </div>
 
             <div className="sidebar-section">
-              <div className="sidebar-title">TÁC GIẢ</div>
+              <div className="sidebar-title">TÊN SÁCH , TÁC GIẢ</div>
               <input
                 className="sidebar-input"
                 value={displayAuthor}
                 onChange={(e) => handleAuthorChange(e.target.value)}
-                placeholder="Nhập tên tác giả..."
+                placeholder="Nhập tên sách , tên tác giả..."
               />
             </div>
 

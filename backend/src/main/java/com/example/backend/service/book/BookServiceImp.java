@@ -69,7 +69,7 @@ public class BookServiceImp implements BookService {
     }
 
     @Override
-    public ResponseEntity<?> filterBooks(String author, List<Integer> genreIds, Double minPrice, Double maxPrice, String sort, int page, int size) {
+    public ResponseEntity<?> filterBooks(String bookName, String author, List<Integer> genreIds, Double minPrice, Double maxPrice, String sort, int page, int size) {
         try {
             Sort sortObj = Sort.by(Sort.Direction.DESC, "idBook");
             if (sort != null) {
@@ -93,6 +93,13 @@ public class BookServiceImp implements BookService {
 
             Specification<Book> spec = (root, query, criteriaBuilder) -> {
                 List<Predicate> predicates = new ArrayList<>();
+
+                if (bookName != null && !bookName.trim().isEmpty()) {
+                    String searchKeyword = "%" + bookName.trim().toLowerCase() + "%";
+                    Predicate namePredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("nameBook")), searchKeyword);
+                    Predicate authorPredicate = criteriaBuilder.like(criteriaBuilder.lower(root.get("author")), searchKeyword);
+                    predicates.add(criteriaBuilder.or(namePredicate, authorPredicate));
+                }
 
                 if (author != null && !author.trim().isEmpty()) {
                     predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("author")), "%" + author.trim().toLowerCase() + "%"));
@@ -291,14 +298,7 @@ public class BookServiceImp implements BookService {
         try {
             Book book = bookRepository.findDetailById(id)
                     .orElseThrow(() -> new NotFoundException("Không tìm thấy sách với ID: " + id));
-            List<GenreResponse> genres = null;
-            if (book.getListGenres() != null && !book.getListGenres().isEmpty()) {
-                genres = new ArrayList<>();
-                for (Genre g : book.getListGenres()) {
-                    genres.add(new GenreResponse(g.getIdGenre(), g.getNameGenre()));
-                }
-            }
-            return ResponseEntity.ok().body(ApiResponse.success("Lấy sách thành công", mapToBookResponse(book, genres)));
+            return ResponseEntity.ok().body(ApiResponse.success("Lấy sách thành công", mapToBookResponse(book)));
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
@@ -490,10 +490,22 @@ public class BookServiceImp implements BookService {
     }
 
     private BookResponse mapToBookResponse(Book book) {
-        return mapToBookResponse(book, null);
-    }
+        List<GenreResponse> genres = null;
+        if (book.getListGenres() != null && !book.getListGenres().isEmpty()) {
+            genres = new ArrayList<>();
+            for (Genre genre : book.getListGenres()) {
+                genres.add(new GenreResponse(genre.getIdGenre(), genre.getNameGenre()));
+            }
+        }
 
-    private BookResponse mapToBookResponse(Book book, List<GenreResponse> genres) {
+        List<ImageResponse> images = null;
+        if (book.getListImages() != null && !book.getListImages().isEmpty()) {
+            images = new ArrayList<>();
+            for (Image image : book.getListImages()) {
+                images.add(new ImageResponse(image.getIdImage(), image.getNameImage(), image.isThumbnail(), image.getUrlImage()));
+            }
+        }
+
         return new BookResponse(
                 book.getIdBook(),
                 book.getNameBook(),
@@ -505,7 +517,8 @@ public class BookServiceImp implements BookService {
                 book.getAvgRating(),
                 book.getSoldQuantity(),
                 book.getDiscountPercent(),
-                genres
+                genres,
+                images
         );
     }
 }

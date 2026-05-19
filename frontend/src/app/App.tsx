@@ -17,7 +17,8 @@ import AccountVouchersPage from "../pages/account/components/AccountVouchersPage
 
 // Admin imports
 import AdminLayout from "../pages/admin/AdminLayout";
-import UserManagementPage from "../pages/admin/UserManagement/UserManagement";
+import UserManagementPage from "../pages/admin/usermanagement/UserManagement";
+import BookManagementPage from "../pages/admin/bookmanagement/BookManagement";
 
 function App() {
   const location = useLocation();
@@ -45,6 +46,7 @@ function App() {
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="users" element={<UserManagementPage />} />
+            <Route path="books" element={<BookManagementPage />} />
           </Route>
         </Routes>
       </main>

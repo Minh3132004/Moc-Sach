@@ -99,6 +99,7 @@ export async function getAllBook(size?: number, page?: number): Promise<BookList
 
 //Tạo phương thức lọc sách tổng hợp
 export async function filterBooks(
+   bookName?: string,
    author?: string,
    genreIds?: number[],
    minPrice?: number,
@@ -111,6 +112,7 @@ export async function filterBooks(
    if (page === undefined) page = 0;
 
    let endpoint = `/books/filter?size=${size}&page=${page}`;
+   if (bookName) endpoint += `&bookName=${encodeURIComponent(bookName)}`;
    if (author) endpoint += `&author=${encodeURIComponent(author)}`;
    if (genreIds && genreIds.length > 0) endpoint += `&genreIds=${genreIds.join(',')}`;
    if (minPrice !== undefined) endpoint += `&minPrice=${minPrice}`;
